@@ -373,7 +373,7 @@ if __name__ == '__main__':
         AppleTVLikeScreenSaver,
         GridSwitchScreenSaver,
     )
-    chosen_screensaver = int(addon.getSetting('kind'))
+    chosen_screensaver = int(addon.getSetting('mode'))
     cls = classes[chosen_screensaver]
     screensaver = cls()
     screensaver.start()
