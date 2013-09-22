@@ -34,9 +34,7 @@ class BaseScreensaver(xbmcgui.WindowDialog):
     IMAGE_CONTROL_COUNT = 10
     FAST_IMAGE_COUNT = 0
     NEXT_IMAGE_TIME = 2000
-    BACKGROUND_IMAGE = xbmc.translatePath(
-        '/'.join((ADDON_PATH, 'resources', 'media', 'background.jpg'))
-    )
+    BACKGROUND_IMAGE = 'table.jpg'
 
     class ExitMonitor(xbmc.Monitor):
 
@@ -111,8 +109,10 @@ class BaseScreensaver(xbmcgui.WindowDialog):
 
     def _init_controls(self):
         self.log('_init_controls start')
-        image_url = self.BACKGROUND_IMAGE
-        self.background_control = xbmcgui.ControlImage(0, 0, 0, 0, image_url)
+        bg_img = xbmc.translatePath('/'.join((
+            ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
+        )))
+        self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, bg_img)
         self.addControl(self.background_control)
         # Place preload control at invisible location
         self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
@@ -266,7 +266,7 @@ class RandomZoomInScreenSaver(BaseScreensaver):
 
 class AppleTVLikeScreenSaver(BaseScreensaver):
 
-    BACKGROUND_IMAGE = ''
+    BACKGROUND_IMAGE = 'black.jpg'
     IMAGE_CONTROL_COUNT = 35
     FAST_IMAGE_COUNT = 3
     NEXT_IMAGE_TIME = 3500
@@ -303,7 +303,6 @@ class AppleTVLikeScreenSaver(BaseScreensaver):
         height = int(width / self.image_aspect_ratio)
         # let images overlap max 1/4 left or right
         x_position = random.randint(0 - width / 4, 1080 - width + width / 4)
-        print x_position
         y_position = 0
 
         time = 15000 / zoom * 100
