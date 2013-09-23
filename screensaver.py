@@ -155,11 +155,15 @@ class TableDropScreenSaver(BaseScreensaver):
     def process_image(self, image_control, image_url):
         ROTATE_ANIMATION = (
             'effect=rotate start=0 end=%d center=auto time=%d '
-            'tween=circle condition=true'
+            'delay=0 tween=circle condition=true'
         )
         DROP_ANIMATION = (
             'effect=zoom start=%d end=100 center=auto time=%d '
-            'tween=circle condition=true'
+            'delay=0 tween=circle condition=true'
+        )
+        FADE_ANIMATION = (
+            'effect=fade start=0 end=100 time=200 '
+            'condition=true'
         )
         # hide the image
         image_control.setVisible(False)
@@ -171,11 +175,12 @@ class TableDropScreenSaver(BaseScreensaver):
         height = int(width / self.image_aspect_ratio)
         x_position = random.randint(0, 1280 - width)
         y_position = random.randint(0, 720 - height)
-        drop_height = random.randint(180, 400)
+        drop_height = random.randint(360, 600)
         drop_duration = random.randint(500, 1000)
         rotation_degrees = random.uniform(-20, 20)
         rotation_duration = drop_duration
         animations = [
+            ('conditional', FADE_ANIMATION),
             ('conditional',
              ROTATE_ANIMATION % (rotation_degrees, rotation_duration)),
             ('conditional',
