@@ -53,6 +53,7 @@ class BaseScreensaver(xbmcgui.WindowDialog):
         self.exit_monitor = self.ExitMonitor(self._exit)
         super(BaseScreensaver, self).show()
         self._init_controls()
+        self.stack_controls()
 
     def start(self):
         image_pool = self.get_images()
@@ -120,7 +121,6 @@ class BaseScreensaver(xbmcgui.WindowDialog):
         for i in xrange(self.IMAGE_CONTROL_COUNT):
             img_control = xbmcgui.ControlImage(0, 0, 0, 0, '')
             self.image_controls.append(img_control)
-        self.stack_controls()
         self.log('_init_controls end')
 
     def _del_controls(self):
