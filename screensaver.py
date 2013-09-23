@@ -274,7 +274,8 @@ class AppleTVLikeScreenSaver(BaseScreensaver):
     BACKGROUND_IMAGE = 'black.jpg'
     IMAGE_CONTROL_COUNT = 35
     FAST_IMAGE_COUNT = 3
-    NEXT_IMAGE_TIME = 3500
+    NEXT_IMAGE_TIME = 4500
+    TOTAL_TIME = 15000
 
     def stack_controls(self):
         # randomly generate a zoom in percent as betavariant
@@ -283,8 +284,9 @@ class AppleTVLikeScreenSaver(BaseScreensaver):
         # This is needed because the bigger (=nearer) ones need to be in front
         # of the smaller ones.
         # Then shuffle image list again to have random size order.
+
         for image_control in self.image_controls:
-            zoom = int(random.betavariate(2, 2) * 60) + 10
+            zoom = int(random.betavariate(2, 2) * 40) + 10
             #zoom = int(random.randint(10, 70))
             width = 1280 / 100 * zoom
             image_control.setWidth(width)
@@ -306,11 +308,11 @@ class AppleTVLikeScreenSaver(BaseScreensaver):
         width = image_control.getWidth()
         zoom = width * 100 / 1280
         height = int(width / self.image_aspect_ratio)
-        # let images overlap max 1/4 left or right
-        x_position = random.randint(0 - width / 4, 1080 - width + width / 4)
+        # let images overlap max 1/2w left or right
+        x_position = random.randint(0 - width / 2, 1080 + width / 2)
         y_position = 0
 
-        time = 15000 / zoom * 100
+        time = self.TOTAL_TIME / zoom * 100
 
         animations = [
             ('conditional', MOVE_ANIMATION % time),
