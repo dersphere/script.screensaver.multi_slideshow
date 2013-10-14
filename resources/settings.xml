@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <setting id="mode" type="enum" label="32000" lvalues="32001|32002|32003|32004|32005|" default="0"/>
+    <setting id="image_path" type="folder" label="32010" default=""/>
 </settings>

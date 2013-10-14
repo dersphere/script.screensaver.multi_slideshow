@@ -23,6 +23,7 @@ import json
 import xbmc
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 
 addon = xbmcaddon.Addon()
 ADDON_NAME = addon.getAddonInfo('name')
@@ -63,12 +64,14 @@ class Screensaver(xbmcgui.WindowDialog):
         self._init_controls()
         self.stack_controls()
 
-    def start(self):
-        image_pool = self.get_images()
+    def start(self, image_source):
+        image_pool = self.get_images(image_source)
+        print image_pool
         image_url = random.choice(image_pool)
         image_controls_cycle = cycle(self.image_controls)
         image_count = 0
         while not self.exit_requested:
+            self.log('using image: %s' % repr(image_url))
             image_control = image_controls_cycle.next()
             self.process_image(image_control, image_url)
             image_url = random.choice(image_pool)
@@ -78,22 +81,18 @@ class Screensaver(xbmcgui.WindowDialog):
             else:
                 self._wait()
 
-    def get_images(self):
-        query = {
-            'jsonrpc': '2.0',
-            'id': 0,
-            'method': 'VideoLibrary.GetMovies',
-            'params': {
-                'properties': ['fanart']
-            }
-        }
-        response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
-        images = [
-            movie['fanart'] for movie
-            in response.get('result', {}).get('movies', [])
-        ]
+    def get_images(self, source=None):
         self.image_aspect_ratio = 16.0 / 9.0
-        return images
+        if source == 'movie_fanart':
+            return self._get_json_images('VideoLibrary.GetMovies', 'movies')
+        elif source == 'artist_fanart':
+            return self._get_json_images('AudioLibrary.GetArtists', 'artists')
+        elif source == 'album_fanart':
+            return self._get_json_images('AudioLibrary.GetAlbums', 'albums')
+        elif source == 'folder':
+            path = addon.getSetting('image_path')
+            return self._get_folder_images(path)
+        raise NotImplementedError
 
     def process_image(self, image_control, image_url):
         # Needs to be implemented in child class
@@ -139,6 +138,34 @@ class Screensaver(xbmcgui.WindowDialog):
             img = self.image_controls.pop()
             del img
         self.log('_del_controls end')
+
+    def _get_json_images(self, method, prop):
+        query = {
+            'jsonrpc': '2.0',
+            'method': method,
+            'params': {
+                'properties': ['fanart'],
+                'media': {'start': 0, 'end': 200},
+                'sort': {'method': 'random'}
+            }
+        }
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
+        images = [
+            element['fanart'] for element
+            in response.get('result', {}).get(prop, [])
+            if element.get('fanart')
+        ]
+        return images
+
+    def _get_folder_images(self, path):
+        if not path.endswith('/'):
+            path += '/'
+        dirs, files = xbmcvfs.listdir(path)
+        images = [
+            path + f for f in files
+            if f.lower()[-3:] in ('jpg', 'png')
+        ]
+        return images
 
     def _exit(self):
         self.log('_exit')
@@ -395,6 +422,6 @@ if __name__ == '__main__':
     )
     chosen_mode = modes[int(addon.getSetting('mode'))]
     screensaver = Screensaver.get_class(chosen_mode)()
-    screensaver.start()
+    screensaver.start('folder')
     del screensaver
     sys.modules.clear()
