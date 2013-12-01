@@ -72,20 +72,22 @@ class ScreensaverBase(object):
         return xbmcgui.WindowDialog()
 
     def start(self, image_source):
-        image_pool = self.get_images(image_source)
-        image_url = random.choice(image_pool)
+        images = self.get_images(image_source)
+        random.shuffle(images)
+        image_cycle = cycle(images)
+        image_url = image_cycle.next()
         image_controls_cycle = cycle(self.image_controls)
         image_count = 0
         while not self.exit_requested:
             self.log('using image: %s' % repr(image_url))
             image_control = image_controls_cycle.next()
             self.process_image(image_control, image_url)
-            image_url = random.choice(image_pool)
-            self._preload_image(image_url)
+            image_url = image_cycle.next()
+            self.preload_image(image_url)
             if image_count < self.FAST_IMAGE_COUNT:
                 image_count += 1
             else:
-                self._wait()
+                self.wait()
 
     def get_images(self, source=None):
         self.image_aspect_ratio = 16.0 / 9.0
@@ -109,15 +111,15 @@ class ScreensaverBase(object):
         # so any new image will be in front of all previous images
         self.xbmc_window.addControls(self.image_controls)
 
-    def _preload_image(self, image_url):
+    def preload_image(self, image_url):
         # set the next image to an unvisible image-control for caching
         self.preload_control.setImage(image_url)
 
-    def _wait(self):
+    def wait(self):
         # wait in chunks of 500ms to react earlier on exit request
         for i in xrange(self.NEXT_IMAGE_TIME / 500):
             if self.exit_requested:
-                self.log('_wait aborted')
+                self.log('wait aborted')
                 return
             xbmc.sleep(500)
 
@@ -148,11 +150,10 @@ class ScreensaverBase(object):
     def _get_json_images(self, method, prop):
         query = {
             'jsonrpc': '2.0',
+            'id': 0,
             'method': method,
             'params': {
                 'properties': ['fanart'],
-                'media': {'start': 0, 'end': 200},
-                'sort': {'method': 'random'}
             }
         }
         response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
@@ -164,11 +165,9 @@ class ScreensaverBase(object):
         return images
 
     def _get_folder_images(self, path):
-        if not path.endswith('/'):
-            path += '/'
         dirs, files = xbmcvfs.listdir(path)
         images = [
-            path + f for f in files
+            xbmc.validatePath(path + f) for f in files
             if f.lower()[-3:] in ('jpg', 'png')
         ]
         return images
