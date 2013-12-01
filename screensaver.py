@@ -30,6 +30,15 @@ ADDON_NAME = addon.getAddonInfo('name')
 ADDON_PATH = addon.getAddonInfo('path')
 
 
+class ScreensaverManager(object):
+
+    def __new__(cls, mode):
+        for sub_class in ScreensaverBase.__subclasses__():
+            if sub_class.NAME == mode:
+                return sub_class()
+        raise ValueError('Not a valid ScreensaverBase Subclass')
+
+
 class ExitMonitor(xbmc.Monitor):
 
     def __init__(self, exit_callback):
@@ -39,20 +48,13 @@ class ExitMonitor(xbmc.Monitor):
         self.exit_callback()
 
 
-class Screensaver(xbmcgui.WindowDialog):
+class ScreensaverBase(xbmcgui.WindowDialog):
 
     NAME = None
     IMAGE_CONTROL_COUNT = 10
     FAST_IMAGE_COUNT = 0
     NEXT_IMAGE_TIME = 2000
     BACKGROUND_IMAGE = 'table.jpg'
-
-    @classmethod
-    def get_class(cls, name):
-        for sub_class in cls.__subclasses__():
-            if sub_class.NAME == name:
-                return sub_class
-        raise ValueError('Not a valid Screensaver Subclass')
 
     def __init__(self):
         self.log('__init__')
@@ -61,7 +63,7 @@ class Screensaver(xbmcgui.WindowDialog):
         self.preload_control = None
         self.image_controls = []
         self.exit_monitor = ExitMonitor(self._exit)
-        super(Screensaver, self).show()
+        super(ScreensaverBase, self).show()
         self._init_controls()
         self.stack_controls()
 
@@ -180,7 +182,7 @@ class Screensaver(xbmcgui.WindowDialog):
         self._del_controls()
 
 
-class TableDropScreenSaver(Screensaver):
+class TableDropScreenSaver(ScreensaverBase):
 
     NAME = 'TableDrop'
     IMAGE_CONTROL_COUNT = 20
@@ -233,7 +235,7 @@ class TableDropScreenSaver(Screensaver):
         image_control.setVisible(True)
 
 
-class StarWarsScreenSaver(Screensaver):
+class StarWarsScreenSaver(ScreensaverBase):
 
     NAME = 'StarWars'
     IMAGE_CONTROL_COUNT = 6
@@ -272,7 +274,7 @@ class StarWarsScreenSaver(Screensaver):
         image_control.setVisible(True)
 
 
-class RandomZoomInScreenSaver(Screensaver):
+class RandomZoomInScreenSaver(ScreensaverBase):
 
     NAME = 'RandomZoomIn'
     IMAGE_CONTROL_COUNT = 7
@@ -308,7 +310,7 @@ class RandomZoomInScreenSaver(Screensaver):
         image_control.setVisible(True)
 
 
-class AppleTVLikeScreenSaver(Screensaver):
+class AppleTVLikeScreenSaver(ScreensaverBase):
 
     NAME = 'AppleTVLike'
     BACKGROUND_IMAGE = 'black.jpg'
@@ -367,7 +369,7 @@ class AppleTVLikeScreenSaver(Screensaver):
         image_control.setVisible(True)
 
 
-class GridSwitchScreenSaver(Screensaver):
+class GridSwitchScreenSaver(ScreensaverBase):
 
     NAME = 'GridSwitch'
     BACKGROUND_IMAGE = ''
@@ -421,8 +423,8 @@ if __name__ == '__main__':
         'AppleTVLike',
         'GridSwitch',
     )
-    chosen_mode = modes[int(addon.getSetting('mode'))]
-    screensaver = Screensaver.get_class(chosen_mode)()
+    mode = modes[int(addon.getSetting('mode'))]
+    screensaver = ScreensaverManager(mode)
     screensaver.start('folder')
     del screensaver
     sys.modules.clear()
