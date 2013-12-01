@@ -51,13 +51,10 @@ class ExitMonitor(xbmc.Monitor):
 class ScreensaverBase(object):
 
     MODE = None
-    WINDOW_CLASS = xbmcgui.WindowDialog
-    WINDOW_ARGS = ()
-
     IMAGE_CONTROL_COUNT = 10
     FAST_IMAGE_COUNT = 0
     NEXT_IMAGE_TIME = 2000
-    BACKGROUND_IMAGE = 'table.jpg'
+    BACKGROUND_IMAGE = 'black.jpg'
 
     def __init__(self):
         self.log('__init__')
@@ -66,10 +63,13 @@ class ScreensaverBase(object):
         self.preload_control = None
         self.image_controls = []
         self.exit_monitor = ExitMonitor(self.stop)
-        self.xbmc_window = self.WINDOW_CLASS(*self.WINDOW_ARGS)
+        self.xbmc_window = self.get_window_instance()
         self.xbmc_window.show()
         self._init_controls()
         self.stack_controls()
+
+    def get_window_instance(self):
+        return xbmcgui.WindowDialog()
 
     def start(self, image_source):
         image_pool = self.get_images(image_source)
@@ -101,12 +101,12 @@ class ScreensaverBase(object):
         raise NotImplementedError
 
     def process_image(self, image_control, image_url):
-        # Needs to be implemented in child class
+        # Needs to be implemented in sub class
         raise NotImplementedError
 
     def stack_controls(self):
         # add controls to the window in same order as image_controls list
-        # so any next image will be in front of all previous
+        # so any new image will be in front of all previous images
         self.xbmc_window.addControls(self.image_controls)
 
     def _preload_image(self, image_url):
@@ -123,7 +123,7 @@ class ScreensaverBase(object):
 
     def _init_controls(self):
         self.log('_init_controls start')
-        bg_img = xbmc.translatePath('/'.join((
+        bg_img = xbmc.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
         )))
         self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, bg_img)
@@ -188,6 +188,7 @@ class ScreensaverBase(object):
 class TableDropScreensaver(ScreensaverBase):
 
     MODE = 'TableDrop'
+    BACKGROUND_IMAGE = 'table.jpg'
     IMAGE_CONTROL_COUNT = 20
     FAST_IMAGE_COUNT = 3
     NEXT_IMAGE_TIME = 1500
@@ -316,7 +317,6 @@ class RandomZoomInScreensaver(ScreensaverBase):
 class AppleTVLikeScreensaver(ScreensaverBase):
 
     MODE = 'AppleTVLike'
-    BACKGROUND_IMAGE = 'black.jpg'
     IMAGE_CONTROL_COUNT = 35
     FAST_IMAGE_COUNT = 3
     NEXT_IMAGE_TIME = 4500
@@ -375,7 +375,6 @@ class AppleTVLikeScreensaver(ScreensaverBase):
 class GridSwitchScreensaver(ScreensaverBase):
 
     MODE = 'GridSwitch'
-    BACKGROUND_IMAGE = ''
 
     ROWS_AND_COLUMNS = 4
     NEXT_IMAGE_TIME = 1000
