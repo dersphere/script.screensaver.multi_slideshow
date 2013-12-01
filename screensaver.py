@@ -48,9 +48,12 @@ class ExitMonitor(xbmc.Monitor):
         self.exit_callback()
 
 
-class ScreensaverBase(xbmcgui.WindowDialog):
+class ScreensaverBase(object):
 
     NAME = None
+    WINDOW_CLASS = xbmcgui.WindowDialog
+    WINDOW_ARGS = ()
+
     IMAGE_CONTROL_COUNT = 10
     FAST_IMAGE_COUNT = 0
     NEXT_IMAGE_TIME = 2000
@@ -63,7 +66,8 @@ class ScreensaverBase(xbmcgui.WindowDialog):
         self.preload_control = None
         self.image_controls = []
         self.exit_monitor = ExitMonitor(self._exit)
-        super(ScreensaverBase, self).show()
+        self.xbmc_window = self.WINDOW_CLASS(*self.WINDOW_ARGS)
+        self.xbmc_window.show()
         self._init_controls()
         self.stack_controls()
 
@@ -104,7 +108,7 @@ class ScreensaverBase(xbmcgui.WindowDialog):
     def stack_controls(self):
         # add controls to the window in same order as image_controls list
         # so any next image will be in front of all previous
-        self.addControls(self.image_controls)
+        self.xbmc_window.addControls(self.image_controls)
 
     def _preload_image(self, image_url):
         # set the next image to an unvisible image-control for caching
@@ -124,10 +128,10 @@ class ScreensaverBase(xbmcgui.WindowDialog):
             ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
         )))
         self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, bg_img)
-        self.addControl(self.background_control)
+        self.xbmc_window.addControl(self.background_control)
         # Place preload control at invisible location
         self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
-        self.addControl(self.preload_control)
+        self.xbmc_window.addControl(self.preload_control)
         for i in xrange(self.IMAGE_CONTROL_COUNT):
             img_control = xbmcgui.ControlImage(0, 0, 0, 0, '')
             self.image_controls.append(img_control)
@@ -135,7 +139,7 @@ class ScreensaverBase(xbmcgui.WindowDialog):
 
     def _del_controls(self):
         self.log('_del_controls start')
-        self.removeControls(self.image_controls + [self.preload_control])
+        self.xbmc_window.removeControls(self.image_controls + [self.preload_control])
         del self.preload_control
         while self.image_controls:
             img = self.image_controls.pop()
@@ -207,8 +211,8 @@ class TableDropScreenSaver(ScreensaverBase):
         # hide the image
         image_control.setVisible(False)
         # re-stack it (to be on top)
-        self.removeControl(image_control)
-        self.addControl(image_control)
+        self.xbmc_window.removeControl(image_control)
+        self.xbmc_window.addControl(image_control)
         # calculate all parameters and properties
         width = random.randint(self.MIN_WIDTH, self.MAX_WIDTH)
         height = int(width / self.image_aspect_ratio)
@@ -253,8 +257,8 @@ class StarWarsScreenSaver(ScreensaverBase):
         # hide the image
         image_control.setVisible(False)
         # re-stack it (to be on top)
-        self.removeControl(image_control)
-        self.addControl(image_control)
+        self.xbmc_window.removeControl(image_control)
+        self.xbmc_window.addControl(image_control)
         # calculate all parameters and properties
         width = 1280
         height = 720
@@ -288,8 +292,8 @@ class RandomZoomInScreenSaver(ScreensaverBase):
         # hide the image
         image_control.setVisible(False)
         # re-stack it (to be on top)
-        self.removeControl(image_control)
-        self.addControl(image_control)
+        self.xbmc_window.removeControl(image_control)
+        self.xbmc_window.addControl(image_control)
         # calculate all parameters and properties
         width = 1280
         height = 720
@@ -335,7 +339,7 @@ class AppleTVLikeScreenSaver(ScreensaverBase):
         self.image_controls = sorted(
             self.image_controls, key=lambda c: c.getWidth()
         )
-        self.addControls(self.image_controls)
+        self.xbmc_window.addControls(self.image_controls)
         random.shuffle(self.image_controls)
 
     def process_image(self, image_control, image_url):
