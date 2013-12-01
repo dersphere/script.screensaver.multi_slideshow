@@ -33,10 +33,10 @@ ADDON_PATH = addon.getAddonInfo('path')
 class ScreensaverManager(object):
 
     def __new__(cls, mode):
-        for sub_class in ScreensaverBase.__subclasses__():
-            if sub_class.NAME == mode:
-                return sub_class()
-        raise ValueError('Not a valid ScreensaverBase Subclass')
+        for subcls in ScreensaverBase.__subclasses__():
+            if subcls.MODE == mode:
+                return subcls()
+        raise ValueError('Not a valid ScreensaverBase subclass: %s' % mode)
 
 
 class ExitMonitor(xbmc.Monitor):
@@ -50,7 +50,7 @@ class ExitMonitor(xbmc.Monitor):
 
 class ScreensaverBase(object):
 
-    NAME = None
+    MODE = None
     WINDOW_CLASS = xbmcgui.WindowDialog
     WINDOW_ARGS = ()
 
@@ -65,7 +65,7 @@ class ScreensaverBase(object):
         self.background_control = None
         self.preload_control = None
         self.image_controls = []
-        self.exit_monitor = ExitMonitor(self._exit)
+        self.exit_monitor = ExitMonitor(self.stop)
         self.xbmc_window = self.WINDOW_CLASS(*self.WINDOW_ARGS)
         self.xbmc_window.show()
         self._init_controls()
@@ -73,7 +73,6 @@ class ScreensaverBase(object):
 
     def start(self, image_source):
         image_pool = self.get_images(image_source)
-        print image_pool
         image_url = random.choice(image_pool)
         image_controls_cycle = cycle(self.image_controls)
         image_count = 0
@@ -174,8 +173,8 @@ class ScreensaverBase(object):
         ]
         return images
 
-    def _exit(self):
-        self.log('_exit')
+    def stop(self):
+        self.log('stop')
         self.exit_requested = True
         self.exit_monitor = None
 
@@ -186,9 +185,9 @@ class ScreensaverBase(object):
         self._del_controls()
 
 
-class TableDropScreenSaver(ScreensaverBase):
+class TableDropScreensaver(ScreensaverBase):
 
-    NAME = 'TableDrop'
+    MODE = 'TableDrop'
     IMAGE_CONTROL_COUNT = 20
     FAST_IMAGE_COUNT = 3
     NEXT_IMAGE_TIME = 1500
@@ -239,9 +238,9 @@ class TableDropScreenSaver(ScreensaverBase):
         image_control.setVisible(True)
 
 
-class StarWarsScreenSaver(ScreensaverBase):
+class StarWarsScreensaver(ScreensaverBase):
 
-    NAME = 'StarWars'
+    MODE = 'StarWars'
     IMAGE_CONTROL_COUNT = 6
     NEXT_IMAGE_TIME = 2800
 
@@ -278,9 +277,9 @@ class StarWarsScreenSaver(ScreensaverBase):
         image_control.setVisible(True)
 
 
-class RandomZoomInScreenSaver(ScreensaverBase):
+class RandomZoomInScreensaver(ScreensaverBase):
 
-    NAME = 'RandomZoomIn'
+    MODE = 'RandomZoomIn'
     IMAGE_CONTROL_COUNT = 7
     NEXT_IMAGE_TIME = 2000
 
@@ -314,9 +313,9 @@ class RandomZoomInScreenSaver(ScreensaverBase):
         image_control.setVisible(True)
 
 
-class AppleTVLikeScreenSaver(ScreensaverBase):
+class AppleTVLikeScreensaver(ScreensaverBase):
 
-    NAME = 'AppleTVLike'
+    MODE = 'AppleTVLike'
     BACKGROUND_IMAGE = 'black.jpg'
     IMAGE_CONTROL_COUNT = 35
     FAST_IMAGE_COUNT = 3
@@ -373,9 +372,9 @@ class AppleTVLikeScreenSaver(ScreensaverBase):
         image_control.setVisible(True)
 
 
-class GridSwitchScreenSaver(ScreensaverBase):
+class GridSwitchScreensaver(ScreensaverBase):
 
-    NAME = 'GridSwitch'
+    MODE = 'GridSwitch'
     BACKGROUND_IMAGE = ''
 
     ROWS_AND_COLUMNS = 4
@@ -387,7 +386,7 @@ class GridSwitchScreenSaver(ScreensaverBase):
     def stack_controls(self):
         # Set position and dimensions based on position.
         # Shuffle image list to have random order.
-        super(GridSwitchScreenSaver, self).stack_controls()
+        super(GridSwitchScreensaver, self).stack_controls()
         for i, image_control in enumerate(self.image_controls):
             current_row, current_col = divmod(i, self.ROWS_AND_COLUMNS)
             width = 1280 / self.ROWS_AND_COLUMNS
@@ -418,6 +417,7 @@ def cycle(iterable):
     while saved:
         for element in saved:
             yield element
+
 
 if __name__ == '__main__':
     modes = (
