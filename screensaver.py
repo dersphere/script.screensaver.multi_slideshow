@@ -30,6 +30,15 @@ ADDON_NAME = addon.getAddonInfo('name')
 ADDON_PATH = addon.getAddonInfo('path')
 
 
+class ExitMonitor(xbmc.Monitor):
+
+    def __init__(self, exit_callback):
+        self.exit_callback = exit_callback
+
+    def onScreensaverDeactivated(self):
+        self.exit_callback()
+
+
 class Screensaver(xbmcgui.WindowDialog):
 
     NAME = None
@@ -37,14 +46,6 @@ class Screensaver(xbmcgui.WindowDialog):
     FAST_IMAGE_COUNT = 0
     NEXT_IMAGE_TIME = 2000
     BACKGROUND_IMAGE = 'table.jpg'
-
-    class ExitMonitor(xbmc.Monitor):
-
-        def __init__(self, exit_callback):
-            self.exit_callback = exit_callback
-
-        def onScreensaverDeactivated(self):
-            self.exit_callback()
 
     @classmethod
     def get_class(cls, name):
@@ -59,7 +60,7 @@ class Screensaver(xbmcgui.WindowDialog):
         self.background_control = None
         self.preload_control = None
         self.image_controls = []
-        self.exit_monitor = self.ExitMonitor(self._exit)
+        self.exit_monitor = ExitMonitor(self._exit)
         super(Screensaver, self).show()
         self._init_controls()
         self.stack_controls()
