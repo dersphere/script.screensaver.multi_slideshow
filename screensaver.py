@@ -190,7 +190,7 @@ class TableDropScreensaver(ScreensaverBase):
     MODE = 'TableDrop'
     BACKGROUND_IMAGE = 'table.jpg'
     IMAGE_CONTROL_COUNT = 20
-    FAST_IMAGE_COUNT = 3
+    FAST_IMAGE_COUNT = 0
     NEXT_IMAGE_TIME = 1500
     MIN_WIDTH = 500
     MAX_WIDTH = 700
