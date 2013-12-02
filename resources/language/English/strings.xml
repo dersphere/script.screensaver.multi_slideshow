@@ -15,4 +15,8 @@
     <string id="32012">Folder</string>
     <string id="32013">Artist Fanart</string>
     <string id="32014">Album Fanart</string>
+
+    <string id="32300">Wait Time</string>
+    <string id="32301">Effect Time</string>
+    <string id="32302">Rows and Columns</string>
 </strings>

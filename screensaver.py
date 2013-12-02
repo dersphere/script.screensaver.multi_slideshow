@@ -81,6 +81,7 @@ class ScreensaverBase(object):
         self.exit_monitor = ExitMonitor(self.stop)
         self.xbmc_window = self.get_window_instance()
         self.xbmc_window.show()
+        self.load_settings()
         self._init_controls()
         self.stack_controls()
 
@@ -122,6 +123,9 @@ class ScreensaverBase(object):
         # Needs to be implemented in sub class
         raise NotImplementedError
 
+    def load_settings(self):
+        pass
+
     def stack_controls(self):
         # add controls to the window in same order as image_controls list
         # so any new image will be in front of all previous images
@@ -129,6 +133,7 @@ class ScreensaverBase(object):
 
     def preload_image(self, image_url):
         # set the next image to an unvisible image-control for caching
+        self.log('preloading image: %s' % repr(image_url))
         self.preload_control.setImage(image_url)
 
     def wait(self):
@@ -210,6 +215,9 @@ class TableDropScreensaver(ScreensaverBase):
     MIN_WIDTH = 500
     MAX_WIDTH = 700
 
+    def load_settings(self):
+        self.NEXT_IMAGE_TIME = int(addon.getSetting('tabledrop_wait'))
+
     def process_image(self, image_control, image_url):
         ROTATE_ANIMATION = (
             'effect=rotate start=0 end=%d center=auto time=%d '
@@ -272,6 +280,7 @@ class StarWarsScreensaver(ScreensaverBase):
         )
         # hide the image
         image_control.setVisible(False)
+        image_control.setImage('')
         # re-stack it (to be on top)
         self.xbmc_window.removeControl(image_control)
         self.xbmc_window.addControl(image_control)
@@ -299,14 +308,20 @@ class RandomZoomInScreensaver(ScreensaverBase):
     MODE = 'RandomZoomIn'
     IMAGE_CONTROL_COUNT = 7
     NEXT_IMAGE_TIME = 2000
+    EFFECT_TIME = 5000
+
+    def load_settings(self):
+        self.NEXT_IMAGE_TIME = int(addon.getSetting('randomzoom_wait'))
+        self.EFFECT_TIME = int(addon.getSetting('randomzoom_effect'))
 
     def process_image(self, image_control, image_url):
         ZOOM_ANIMATION = (
-            'effect=zoom start=1 end=100 center=%d,%d time=5000 '
+            'effect=zoom start=1 end=100 center=%d,%d time=%d '
             'tween=quadratic condition=true'
         )
         # hide the image
         image_control.setVisible(False)
+        image_control.setImage('')
         # re-stack it (to be on top)
         self.xbmc_window.removeControl(image_control)
         self.xbmc_window.addControl(image_control)
@@ -318,7 +333,7 @@ class RandomZoomInScreensaver(ScreensaverBase):
         zoom_x = random.randint(0, 1280)
         zoom_y = random.randint(0, 720)
         animations = [
-            ('conditional', ZOOM_ANIMATION % (zoom_x, zoom_y)),
+            ('conditional', ZOOM_ANIMATION % (zoom_x, zoom_y, self.EFFECT_TIME)),
         ]
         # set all parameters and properties
         image_control.setImage(image_url)
@@ -363,6 +378,7 @@ class AppleTVLikeScreensaver(ScreensaverBase):
             'tween=linear delay=0 condition=true'
         )
         image_control.setVisible(False)
+        image_control.setImage('')
         # calculate all parameters and properties based on the already set
         # width. We can not change the size again because all controls need
         # to be added to the window in size order.
@@ -370,7 +386,8 @@ class AppleTVLikeScreensaver(ScreensaverBase):
         zoom = width * 100 / 1280
         height = int(width / self.image_aspect_ratio)
         # let images overlap max 1/2w left or right
-        x_position = random.randint(0 - width / 2, 1080 + width / 2)
+        center = random.randint(0, 1280)
+        x_position = center - width / 2
         y_position = 0
 
         time = self.TOTAL_TIME / zoom * 100
@@ -398,6 +415,13 @@ class GridSwitchScreensaver(ScreensaverBase):
 
     IMAGE_CONTROL_COUNT = ROWS_AND_COLUMNS ** 2
     FAST_IMAGE_COUNT = IMAGE_CONTROL_COUNT
+
+
+    def load_settings(self):
+        self.NEXT_IMAGE_TIME = int(addon.getSetting('gridswitch_wait'))
+        self.ROWS_AND_COLUMNS = int(addon.getSetting('gridswitch_rows_columns'))
+        self.IMAGE_CONTROL_COUNT = self.ROWS_AND_COLUMNS ** 2
+        self.FAST_IMAGE_COUNT = self.IMAGE_CONTROL_COUNT
 
     def stack_controls(self):
         # Set position and dimensions based on stack position.
