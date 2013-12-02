@@ -150,7 +150,7 @@ class ScreensaverBase(object):
         self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
         self.xbmc_window.addControl(self.preload_control)
         for i in xrange(self.IMAGE_CONTROL_COUNT):
-            img_control = xbmcgui.ControlImage(0, 0, 0, 0, '')
+            img_control = xbmcgui.ControlImage(0, 0, 0, 0, '', aspectRatio=1)
             self.image_controls.append(img_control)
         self.log('_init_controls end')
 
