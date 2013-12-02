@@ -29,10 +29,25 @@ addon = xbmcaddon.Addon()
 ADDON_NAME = addon.getAddonInfo('name')
 ADDON_PATH = addon.getAddonInfo('path')
 
+MODES = (
+    'TableDrop',
+    'StarWars',
+    'RandomZoomIn',
+    'AppleTVLike',
+    'GridSwitch',
+)
+SOURCES = (
+    'movie_fanart',
+    'image_folder',
+    'artist_fanart',
+    'album_fanart',
+)
+
 
 class ScreensaverManager(object):
 
-    def __new__(cls, mode):
+    def __new__(cls):
+        mode = MODES[int(addon.getSetting('mode'))]
         for subcls in ScreensaverBase.__subclasses__():
             if subcls.MODE == mode:
                 return subcls()
@@ -71,13 +86,13 @@ class ScreensaverBase(object):
     def get_window_instance(self):
         return xbmcgui.WindowDialog()
 
-    def start(self, image_source):
-        images = self.get_images(image_source)
+    def start(self):
+        images = self.get_images()
         random.shuffle(images)
         image_cycle = cycle(images)
-        image_url = image_cycle.next()
         image_controls_cycle = cycle(self.image_controls)
         image_count = 0
+        image_url = image_cycle.next()
         while not self.exit_requested:
             self.log('using image: %s' % repr(image_url))
             image_control = image_controls_cycle.next()
@@ -89,8 +104,9 @@ class ScreensaverBase(object):
             else:
                 self.wait()
 
-    def get_images(self, source=None):
+    def get_images(self):
         self.image_aspect_ratio = 16.0 / 9.0
+        source = SOURCES[int(addon.getSetting('source'))]
         if source == 'movie_fanart':
             return self._get_json_images('VideoLibrary.GetMovies', 'movies')
         elif source == 'artist_fanart':
@@ -419,22 +435,7 @@ def cycle(iterable):
 
 
 if __name__ == '__main__':
-    modes = (
-        'TableDrop',
-        'StarWars',
-        'RandomZoomIn',
-        'AppleTVLike',
-        'GridSwitch',
-    )
-    sources = (
-        'movie_fanart',
-        'image_folder',
-        'artist_fanart',
-        'album_fanart',
-    )
-    mode = modes[int(addon.getSetting('mode'))]
-    source = sources[int(addon.getSetting('source'))]
-    screensaver = ScreensaverManager(mode)
-    screensaver.start(source)
+    screensaver = ScreensaverManager()
+    screensaver.start()
     del screensaver
     sys.modules.clear()
