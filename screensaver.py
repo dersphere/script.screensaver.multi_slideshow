@@ -209,6 +209,7 @@ class TableDropScreensaver(ScreensaverBase):
         )
         # hide the image
         image_control.setVisible(False)
+        image_control.setImage('')
         # re-stack it (to be on top)
         self.xbmc_window.removeControl(image_control)
         self.xbmc_window.addControl(image_control)
@@ -217,8 +218,8 @@ class TableDropScreensaver(ScreensaverBase):
         height = int(width / self.image_aspect_ratio)
         x_position = random.randint(0, 1280 - width)
         y_position = random.randint(0, 720 - height)
-        drop_height = random.randint(360, 600)
-        drop_duration = random.randint(500, 1000)
+        drop_height = random.randint(400, 800)
+        drop_duration = drop_height * 1.5
         rotation_degrees = random.uniform(-20, 20)
         rotation_duration = drop_duration
         animations = [
