@@ -76,6 +76,7 @@ class ScreensaverBase(object):
         self.exit_requested = False
         self.background_control = None
         self.preload_control = None
+        self.image_count = 0
         self.image_controls = []
         self.exit_monitor = ExitMonitor(self.stop)
         self.xbmc_window = self.get_window_instance()
@@ -91,7 +92,6 @@ class ScreensaverBase(object):
         random.shuffle(images)
         image_cycle = cycle(images)
         image_controls_cycle = cycle(self.image_controls)
-        image_count = 0
         image_url = image_cycle.next()
         while not self.exit_requested:
             self.log('using image: %s' % repr(image_url))
@@ -99,8 +99,8 @@ class ScreensaverBase(object):
             self.process_image(image_control, image_url)
             image_url = image_cycle.next()
             self.preload_image(image_url)
-            if image_count < self.FAST_IMAGE_COUNT:
-                image_count += 1
+            if self.image_count < self.FAST_IMAGE_COUNT:
+                self.image_count += 1
             else:
                 self.wait()
 
@@ -394,12 +394,13 @@ class GridSwitchScreensaver(ScreensaverBase):
 
     ROWS_AND_COLUMNS = 4
     NEXT_IMAGE_TIME = 1000
+    EFFECT_TIME = 500
 
     IMAGE_CONTROL_COUNT = ROWS_AND_COLUMNS ** 2
     FAST_IMAGE_COUNT = IMAGE_CONTROL_COUNT
 
     def stack_controls(self):
-        # Set position and dimensions based on position.
+        # Set position and dimensions based on stack position.
         # Shuffle image list to have random order.
         super(GridSwitchScreensaver, self).stack_controls()
         for i, image_control in enumerate(self.image_controls):
@@ -414,12 +415,21 @@ class GridSwitchScreensaver(ScreensaverBase):
         random.shuffle(self.image_controls)
 
     def process_image(self, image_control, image_url):
+        if not self.image_count < self.FAST_IMAGE_COUNT:
+            FADE_OUT_ANIMATION = (
+                'effect=fade start=100 end=0 time=%d condition=true' % self.EFFECT_TIME
+            )
+            animations = [
+                ('conditional', FADE_OUT_ANIMATION),
+            ]
+            image_control.setAnimations(animations)
+            xbmc.sleep(self.EFFECT_TIME)
         image_control.setImage(image_url)
-        ROTATE_ANIMATION = (
-            'effect=fade start=0 end=100 center=auto time=1000 condition=true'
+        FADE_IN_ANIMATION = (
+            'effect=fade start=0 end=100 time=%d condition=true' % self.EFFECT_TIME
         )
         animations = [
-            ('conditional', ROTATE_ANIMATION),
+            ('conditional', FADE_IN_ANIMATION),
         ]
         image_control.setAnimations(animations)
 
