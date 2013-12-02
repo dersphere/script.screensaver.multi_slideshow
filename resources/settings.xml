@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <setting id="mode" type="enum" label="32000" lvalues="32001|32002|32003|32004|32005|" default="0"/>
-    <setting id="image_path" type="folder" label="32010" default=""/>
+    <category label="32100">
+        <setting id="mode" type="enum" label="32000" lvalues="32001|32002|32003|32004|32005" default="0"/>
+    </category>
+    <category label="32200">
+        <setting id="source" type="enum" label="32010" lvalues="32011|32012|32013|32014" default="0"/>
+        <setting id="image_path" type="folder" label="32015" visible="eq(-1,1)" default=""/>
+    </category>
 </settings>

@@ -97,7 +97,7 @@ class ScreensaverBase(object):
             return self._get_json_images('AudioLibrary.GetArtists', 'artists')
         elif source == 'album_fanart':
             return self._get_json_images('AudioLibrary.GetAlbums', 'albums')
-        elif source == 'folder':
+        elif source == 'image_folder':
             path = addon.getSetting('image_path')
             return self._get_folder_images(path)
         raise NotImplementedError
@@ -426,8 +426,15 @@ if __name__ == '__main__':
         'AppleTVLike',
         'GridSwitch',
     )
+    sources = (
+        'movie_fanart',
+        'image_folder',
+        'artist_fanart',
+        'album_fanart',
+    )
     mode = modes[int(addon.getSetting('mode'))]
+    source = sources[int(addon.getSetting('source'))]
     screensaver = ScreensaverManager(mode)
-    screensaver.start('folder')
+    screensaver.start(source)
     del screensaver
     sys.modules.clear()

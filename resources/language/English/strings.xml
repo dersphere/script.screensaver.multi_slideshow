@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <strings>
+    <string id="32100">Mode</string>
     <string id="32000">Screensaver</string>
     <string id="32001">TableDrop</string>
     <string id="32002">StarWars</string>
     <string id="32003">RandomZoomIn</string>
     <string id="32004">AppleTVLike</string>
     <string id="32005">GridSwitch</string>
-    <string id="32010">Image Folder</string>
+    <string id="32200">Image Source</string>
+    <string id="32010">Source</string>
+    <string id="32011">Movie Fanart</string>
+    <string id="32012">Image Folder</string>
+    <string id="32013">Artist Fanart</string>
+    <string id="32014">Album Fanart</string>
+    <string id="32015">Folder</string>
 </strings>
