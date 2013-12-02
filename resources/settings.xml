@@ -5,6 +5,6 @@
     </category>
     <category label="32200">
         <setting id="source" type="enum" label="32010" lvalues="32011|32012|32013|32014" default="0"/>
-        <setting id="image_path" type="folder" label="32015" visible="eq(-1,1)" default=""/>
+        <setting id="image_path" type="folder" source="pictures" label="32012" visible="eq(-1,1)" default=""/>
     </category>
 </settings>
