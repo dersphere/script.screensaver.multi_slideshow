@@ -35,6 +35,7 @@ MODES = (
     'RandomZoomIn',
     'AppleTVLike',
     'GridSwitch',
+    'Random',
 )
 SOURCES = (
     'movie_fanart',
@@ -48,6 +49,9 @@ class ScreensaverManager(object):
 
     def __new__(cls):
         mode = MODES[int(addon.getSetting('mode'))]
+        if mode == 'Random':
+            subcls = random.choice(ScreensaverBase.__subclasses__())
+            return subcls()
         for subcls in ScreensaverBase.__subclasses__():
             if subcls.MODE == mode:
                 return subcls()

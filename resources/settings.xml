@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
     <category label="32100">
-        <setting id="mode" type="enum" label="32000" lvalues="32001|32002|32003|32004|32005" default="0"/>
+        <setting id="mode" type="enum" label="32000" lvalues="32001|32002|32003|32004|32005|32006" default="5"/>
         <setting id="tabledrop_wait" label="32300" visible="eq(-1,0)" type="slider" default="1500" range="500,500,5000" option="int"/>
         <setting id="randomzoom_wait" label="32300" visible="eq(-2,2)" type="slider" default="2000" range="500,500,5000" option="int"/>
         <setting id="randomzoom_effect" label="32301" visible="eq(-3,2)" type="slider" default="5000" range="500,500,7000" option="int"/>
