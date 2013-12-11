@@ -82,27 +82,30 @@ class ScreensaverBase(object):
         self.preload_control = None
         self.image_count = 0
         self.image_controls = []
+        self.global_controls = []
         self.exit_monitor = ExitMonitor(self.stop)
-        self.xbmc_window = self.get_window_instance()
+        self.xbmc_window = xbmcgui.WindowDialog()
         self.xbmc_window.show()
+        self.init_global_controls()
         self.load_settings()
-        self._init_controls()
-        self.stack_controls()
-
-    def get_window_instance(self):
-        return xbmcgui.WindowDialog()
+        self.init_cycle_controls()
+        self.stack_cycle_controls()
 
     def start(self):
         images = self.get_images()
         random.shuffle(images)
-        image_cycle = cycle(images)
+        image_url_cycle = cycle(images)
         image_controls_cycle = cycle(self.image_controls)
-        image_url = image_cycle.next()
+        self.loading_control.setAnimations([(
+            'conditional',
+            'effect=fade start=100 end=0 time=1000 condition=true'
+        )])
+        image_url = image_url_cycle.next()
         while not self.exit_requested:
             self.log('using image: %s' % repr(image_url))
             image_control = image_controls_cycle.next()
             self.process_image(image_control, image_url)
-            image_url = image_cycle.next()
+            image_url = image_url_cycle.next()
             self.preload_image(image_url)
             if self.image_count < self.FAST_IMAGE_COUNT:
                 self.image_count += 1
@@ -130,7 +133,7 @@ class ScreensaverBase(object):
     def load_settings(self):
         pass
 
-    def stack_controls(self):
+    def stack_cycle_controls(self):
         # add controls to the window in same order as image_controls list
         # so any new image will be in front of all previous images
         self.xbmc_window.addControls(self.image_controls)
@@ -148,28 +151,37 @@ class ScreensaverBase(object):
                 return
             xbmc.sleep(500)
 
-    def _init_controls(self):
-        self.log('_init_controls start')
+    def init_global_controls(self):
         bg_img = xbmc.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
         )))
+        loading_img = xbmc.validatePath('/'.join((
+            ADDON_PATH, 'resources', 'media', 'loading.gif'
+        )))
+        self.loading_control = xbmcgui.ControlImage(576, 296, 128, 128, loading_img)
+        self.preload_control = xbmcgui.ControlImage(0, 0, 1280, 720, '')
         self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, bg_img)
-        self.xbmc_window.addControl(self.background_control)
-        # Place preload control at invisible location
-        self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
-        self.xbmc_window.addControl(self.preload_control)
+        self.global_controls = [
+            self.preload_control, self.background_control, self.loading_control
+        ]
+        self.xbmc_window.addControls(self.global_controls)
+
+    def init_cycle_controls(self):
+        self.log('init_cycle_controls start')
         for i in xrange(self.IMAGE_CONTROL_COUNT):
             img_control = xbmcgui.ControlImage(0, 0, 0, 0, '', aspectRatio=1)
             self.image_controls.append(img_control)
-        self.log('_init_controls end')
+        self.log('init_cycle_controls end')
 
     def _del_controls(self):
         self.log('_del_controls start')
-        self.xbmc_window.removeControls(self.image_controls + [self.preload_control])
-        del self.preload_control
-        while self.image_controls:
-            img = self.image_controls.pop()
-            del img
+        self.xbmc_window.removeControls(self.image_controls)
+        self.xbmc_window.removeControls(self.global_controls)
+        self.preload_control = None
+        self.background_control = None
+        self.loading_control = None
+        self.image_controls = []
+        self.global_controls = []
         self.log('_del_controls end')
 
     def _get_json_images(self, method, prop):
@@ -361,10 +373,10 @@ class AppleTVLikeScreensaver(ScreensaverBase):
     def load_settings(self):
         self.SPEED = float(addon.getSetting('appletvlike_speed'))
         self.CONCURRENCY = float(addon.getSetting('appletvlike_concurrency'))
-        self.MAX_TIME = 15000 / self.SPEED
-        self.NEXT_IMAGE_TIME = 4500.0 / self.CONCURRENCY / self.SPEED
+        self.MAX_TIME = int(15000 / self.SPEED)
+        self.NEXT_IMAGE_TIME = int(4500.0 / self.CONCURRENCY / self.SPEED)
 
-    def stack_controls(self):
+    def stack_cycle_controls(self):
         # randomly generate a zoom in percent as betavariant
         # between 10 and 70 and assign calculated width to control.
         # Remove all controls from window and re-add sorted by size.
@@ -434,10 +446,10 @@ class GridSwitchScreensaver(ScreensaverBase):
         self.IMAGE_CONTROL_COUNT = self.ROWS_AND_COLUMNS ** 2
         self.FAST_IMAGE_COUNT = self.IMAGE_CONTROL_COUNT
 
-    def stack_controls(self):
+    def stack_cycle_controls(self):
         # Set position and dimensions based on stack position.
         # Shuffle image list to have random order.
-        super(GridSwitchScreensaver, self).stack_controls()
+        super(GridSwitchScreensaver, self).stack_cycle_controls()
         for i, image_control in enumerate(self.image_controls):
             current_row, current_col = divmod(i, self.ROWS_AND_COLUMNS)
             width = 1280 / self.ROWS_AND_COLUMNS
