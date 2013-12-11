@@ -91,6 +91,33 @@ class ScreensaverBase(object):
         self.init_cycle_controls()
         self.stack_cycle_controls()
 
+    def init_global_controls(self):
+        loading_img = xbmc.validatePath('/'.join((
+            ADDON_PATH, 'resources', 'media', 'loading.gif'
+        )))
+        self.loading_control = xbmcgui.ControlImage(576, 296, 128, 128, loading_img)
+        self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
+        self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, '')
+        self.global_controls = [
+            self.preload_control, self.background_control, self.loading_control
+        ]
+        self.xbmc_window.addControls(self.global_controls)
+
+    def load_settings(self):
+        pass
+
+    def init_cycle_controls(self):
+        self.log('init_cycle_controls start')
+        for i in xrange(self.IMAGE_CONTROL_COUNT):
+            img_control = xbmcgui.ControlImage(0, 0, 0, 0, '', aspectRatio=1)
+            self.image_controls.append(img_control)
+        self.log('init_cycle_controls end')
+
+    def stack_cycle_controls(self):
+        # add controls to the window in same order as image_controls list
+        # so any new image will be in front of all previous images
+        self.xbmc_window.addControls(self.image_controls)
+
     def start(self):
         images = self.get_images()
         random.shuffle(images)
@@ -109,20 +136,6 @@ class ScreensaverBase(object):
             else:
                 self.wait()
 
-    def hide_loading_indicator(self):
-        bg_img = xbmc.validatePath('/'.join((
-            ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
-        )))
-        self.loading_control.setAnimations([(
-            'conditional',
-            'effect=fade start=100 end=0 time=500 condition=true'
-        )])
-        self.background_control.setAnimations([(
-            'conditional',
-            'effect=fade start=0 end=100 time=500 delay=500 condition=true'
-        )])
-        self.background_control.setImage(bg_img)
-
     def get_images(self):
         self.image_aspect_ratio = 16.0 / 9.0
         source = SOURCES[int(addon.getSetting('source'))]
@@ -136,61 +149,6 @@ class ScreensaverBase(object):
             path = addon.getSetting('image_path')
             return self._get_folder_images(path)
         raise NotImplementedError
-
-    def process_image(self, image_control, image_url):
-        # Needs to be implemented in sub class
-        raise NotImplementedError
-
-    def load_settings(self):
-        pass
-
-    def stack_cycle_controls(self):
-        # add controls to the window in same order as image_controls list
-        # so any new image will be in front of all previous images
-        self.xbmc_window.addControls(self.image_controls)
-
-    def preload_image(self, image_url):
-        # set the next image to an unvisible image-control for caching
-        self.log('preloading image: %s' % repr(image_url))
-        self.preload_control.setImage(image_url)
-
-    def wait(self):
-        # wait in chunks of 500ms to react earlier on exit request
-        for i in xrange(self.NEXT_IMAGE_TIME / 500):
-            if self.exit_requested:
-                self.log('wait aborted')
-                return
-            xbmc.sleep(500)
-
-    def init_global_controls(self):
-        loading_img = xbmc.validatePath('/'.join((
-            ADDON_PATH, 'resources', 'media', 'loading.gif'
-        )))
-        self.loading_control = xbmcgui.ControlImage(576, 296, 128, 128, loading_img)
-        self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
-        self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, '')
-        self.global_controls = [
-            self.preload_control, self.background_control, self.loading_control
-        ]
-        self.xbmc_window.addControls(self.global_controls)
-
-    def init_cycle_controls(self):
-        self.log('init_cycle_controls start')
-        for i in xrange(self.IMAGE_CONTROL_COUNT):
-            img_control = xbmcgui.ControlImage(0, 0, 0, 0, '', aspectRatio=1)
-            self.image_controls.append(img_control)
-        self.log('init_cycle_controls end')
-
-    def _del_controls(self):
-        self.log('_del_controls start')
-        self.xbmc_window.removeControls(self.image_controls)
-        self.xbmc_window.removeControls(self.global_controls)
-        self.preload_control = None
-        self.background_control = None
-        self.loading_control = None
-        self.image_controls = []
-        self.global_controls = []
-        self.log('_del_controls end')
 
     def _get_json_images(self, method, prop):
         query = {
@@ -217,10 +175,52 @@ class ScreensaverBase(object):
         ]
         return images
 
+    def hide_loading_indicator(self):
+        bg_img = xbmc.validatePath('/'.join((
+            ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
+        )))
+        self.loading_control.setAnimations([(
+            'conditional',
+            'effect=fade start=100 end=0 time=500 condition=true'
+        )])
+        self.background_control.setAnimations([(
+            'conditional',
+            'effect=fade start=0 end=100 time=500 delay=500 condition=true'
+        )])
+        self.background_control.setImage(bg_img)
+
+    def process_image(self, image_control, image_url):
+        # Needs to be implemented in sub class
+        raise NotImplementedError
+
+    def preload_image(self, image_url):
+        # set the next image to an unvisible image-control for caching
+        self.log('preloading image: %s' % repr(image_url))
+        self.preload_control.setImage(image_url)
+
+    def wait(self):
+        # wait in chunks of 500ms to react earlier on exit request
+        for i in xrange(self.NEXT_IMAGE_TIME / 500):
+            if self.exit_requested:
+                self.log('wait aborted')
+                return
+            xbmc.sleep(500)
+
     def stop(self):
         self.log('stop')
         self.exit_requested = True
         self.exit_monitor = None
+
+    def _del_controls(self):
+        self.log('_del_controls start')
+        self.xbmc_window.removeControls(self.image_controls)
+        self.xbmc_window.removeControls(self.global_controls)
+        self.preload_control = None
+        self.background_control = None
+        self.loading_control = None
+        self.image_controls = []
+        self.global_controls = []
+        self.log('_del_controls end')
 
     def log(self, msg):
         xbmc.log(u'%s: %s' % (ADDON_NAME, msg))
