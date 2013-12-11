@@ -96,10 +96,7 @@ class ScreensaverBase(object):
         random.shuffle(images)
         image_url_cycle = cycle(images)
         image_controls_cycle = cycle(self.image_controls)
-        self.loading_control.setAnimations([(
-            'conditional',
-            'effect=fade start=100 end=0 time=1000 condition=true'
-        )])
+        self.hide_loading_indicator()
         image_url = image_url_cycle.next()
         while not self.exit_requested:
             self.log('using image: %s' % repr(image_url))
@@ -111,6 +108,20 @@ class ScreensaverBase(object):
                 self.image_count += 1
             else:
                 self.wait()
+
+    def hide_loading_indicator(self):
+        bg_img = xbmc.validatePath('/'.join((
+            ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
+        )))
+        self.loading_control.setAnimations([(
+            'conditional',
+            'effect=fade start=100 end=0 time=500 condition=true'
+        )])
+        self.background_control.setAnimations([(
+            'conditional',
+            'effect=fade start=0 end=100 time=500 delay=500 condition=true'
+        )])
+        self.background_control.setImage(bg_img)
 
     def get_images(self):
         self.image_aspect_ratio = 16.0 / 9.0
@@ -152,15 +163,12 @@ class ScreensaverBase(object):
             xbmc.sleep(500)
 
     def init_global_controls(self):
-        bg_img = xbmc.validatePath('/'.join((
-            ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
-        )))
         loading_img = xbmc.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', 'loading.gif'
         )))
         self.loading_control = xbmcgui.ControlImage(576, 296, 128, 128, loading_img)
-        self.preload_control = xbmcgui.ControlImage(0, 0, 1280, 720, '')
-        self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, bg_img)
+        self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
+        self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, '')
         self.global_controls = [
             self.preload_control, self.background_control, self.loading_control
         ]
