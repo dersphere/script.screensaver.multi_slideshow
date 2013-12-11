@@ -76,7 +76,7 @@ class ScreensaverBase(object):
     BACKGROUND_IMAGE = 'black.jpg'
 
     def __init__(self):
-        self.log('__init__')
+        self.log('__init__ start')
         self.exit_requested = False
         self.background_control = None
         self.preload_control = None
@@ -90,8 +90,10 @@ class ScreensaverBase(object):
         self.load_settings()
         self.init_cycle_controls()
         self.stack_cycle_controls()
+        self.log('__init__ end')
 
     def init_global_controls(self):
+        self.log('init_global_controls start')
         loading_img = xbmc.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', 'loading.gif'
         )))
@@ -102,6 +104,7 @@ class ScreensaverBase(object):
             self.preload_control, self.background_control, self.loading_control
         ]
         self.xbmc_window.addControls(self.global_controls)
+        self.log('init_global_controls end')
 
     def load_settings(self):
         pass
@@ -114,11 +117,14 @@ class ScreensaverBase(object):
         self.log('init_cycle_controls end')
 
     def stack_cycle_controls(self):
+        self.log('stack_cycle_controls start')
         # add controls to the window in same order as image_controls list
         # so any new image will be in front of all previous images
         self.xbmc_window.addControls(self.image_controls)
+        self.log('stack_cycle_controls end')
 
-    def start(self):
+    def start_loop(self):
+        self.log('start_loop start')
         images = self.get_images()
         random.shuffle(images)
         image_url_cycle = cycle(images)
@@ -135,8 +141,10 @@ class ScreensaverBase(object):
                 self.image_count += 1
             else:
                 self.wait()
+        self.log('start_loop end')
 
     def get_images(self):
+        self.log('get_images')
         self.image_aspect_ratio = 16.0 / 9.0
         source = SOURCES[int(addon.getSetting('source'))]
         if source == 'movie_fanart':
@@ -151,6 +159,7 @@ class ScreensaverBase(object):
         raise NotImplementedError
 
     def _get_json_images(self, method, prop):
+        self.log('_get_json_images start')
         query = {
             'jsonrpc': '2.0',
             'id': 0,
@@ -165,14 +174,17 @@ class ScreensaverBase(object):
             in response.get('result', {}).get(prop, [])
             if element.get('fanart')
         ]
+        self.log('_get_json_images end')
         return images
 
     def _get_folder_images(self, path):
+        self.log('_get_folder_images start')
         dirs, files = xbmcvfs.listdir(path)
         images = [
             xbmc.validatePath(path + f) for f in files
             if f.lower()[-3:] in ('jpg', 'png')
         ]
+        self.log('_get_folder_images ends')
         return images
 
     def hide_loading_indicator(self):
@@ -197,6 +209,7 @@ class ScreensaverBase(object):
         # set the next image to an unvisible image-control for caching
         self.log('preloading image: %s' % repr(image_url))
         self.preload_control.setImage(image_url)
+        self.log('preloading done')
 
     def wait(self):
         # wait in chunks of 500ms to react earlier on exit request
@@ -211,8 +224,8 @@ class ScreensaverBase(object):
         self.exit_requested = True
         self.exit_monitor = None
 
-    def _del_controls(self):
-        self.log('_del_controls start')
+    def del_controls(self):
+        self.log('del_controls start')
         self.xbmc_window.removeControls(self.image_controls)
         self.xbmc_window.removeControls(self.global_controls)
         self.preload_control = None
@@ -220,13 +233,13 @@ class ScreensaverBase(object):
         self.loading_control = None
         self.image_controls = []
         self.global_controls = []
-        self.log('_del_controls end')
+        self.log('del_controls end')
 
     def log(self, msg):
         xbmc.log(u'%s: %s' % (ADDON_NAME, msg))
 
     def __del__(self):
-        self._del_controls()
+        self.del_controls()
 
 
 class TableDropScreensaver(ScreensaverBase):
@@ -502,6 +515,6 @@ def cycle(iterable):
 
 if __name__ == '__main__':
     screensaver = ScreensaverManager()
-    screensaver.start()
+    screensaver.start_loop()
     del screensaver
     sys.modules.clear()
