@@ -290,6 +290,7 @@ class TableDropScreensaver(ScreensaverBase):
 class StarWarsScreensaver(ScreensaverBase):
 
     MODE = 'StarWars'
+    BACKGROUND_IMAGE = 'stars.jpg'
     IMAGE_CONTROL_COUNT = 6
     NEXT_IMAGE_TIME = 2800
 
