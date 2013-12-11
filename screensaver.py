@@ -353,14 +353,16 @@ class AppleTVLikeScreensaver(ScreensaverBase):
 
     MODE = 'AppleTVLike'
     IMAGE_CONTROL_COUNT = 35
-    FAST_IMAGE_COUNT = 3
+    FAST_IMAGE_COUNT = 2
+    DISTANCE_RATIO = 0.7
     SPEED = 1.0
+    CONCURRENCY = 1.0
 
     def load_settings(self):
         self.SPEED = float(addon.getSetting('appletvlike_speed'))
+        self.CONCURRENCY = float(addon.getSetting('appletvlike_concurrency'))
         self.MAX_TIME = 15000 / self.SPEED
-        self.NEXT_IMAGE_TIME = 4500 / self.SPEED
-        self.FAST_IMAGE_COUNT = self.MAX_TIME / self.NEXT_IMAGE_TIME
+        self.NEXT_IMAGE_TIME = 4500.0 / self.CONCURRENCY / self.SPEED
 
     def stack_controls(self):
         # randomly generate a zoom in percent as betavariant
@@ -399,7 +401,7 @@ class AppleTVLikeScreensaver(ScreensaverBase):
         x_position = center - width / 2
         y_position = 0
 
-        time = self.MAX_TIME / zoom * 100
+        time = self.MAX_TIME / zoom * self.DISTANCE_RATIO * 100
 
         animations = [
             ('conditional', MOVE_ANIMATION % time),
