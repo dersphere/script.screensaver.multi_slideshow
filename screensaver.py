@@ -17,13 +17,17 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+if sys.version_info >= (2, 7):
+    import json as _json
+else:
+    import simplejson as _json
+
 import random
-import json
 
 import xbmc
 import xbmcaddon
-import xbmcgui
 import xbmcvfs
+from xbmcgui import ControlImage, WindowDialog
 
 addon = xbmcaddon.Addon()
 ADDON_NAME = addon.getAddonInfo('name')
@@ -84,7 +88,7 @@ class ScreensaverBase(object):
         self.image_controls = []
         self.global_controls = []
         self.exit_monitor = ExitMonitor(self.stop)
-        self.xbmc_window = xbmcgui.WindowDialog()
+        self.xbmc_window = WindowDialog()
         self.xbmc_window.show()
         self.init_global_controls()
         self.load_settings()
@@ -97,9 +101,9 @@ class ScreensaverBase(object):
         loading_img = xbmc.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', 'loading.gif'
         )))
-        self.loading_control = xbmcgui.ControlImage(576, 296, 128, 128, loading_img)
-        self.preload_control = xbmcgui.ControlImage(-1, -1, 1, 1, '')
-        self.background_control = xbmcgui.ControlImage(0, 0, 1280, 720, '')
+        self.loading_control = ControlImage(576, 296, 128, 128, loading_img)
+        self.preload_control = ControlImage(-1, -1, 1, 1, '')
+        self.background_control = ControlImage(0, 0, 1280, 720, '')
         self.global_controls = [
             self.preload_control, self.background_control, self.loading_control
         ]
@@ -112,7 +116,7 @@ class ScreensaverBase(object):
     def init_cycle_controls(self):
         self.log('init_cycle_controls start')
         for i in xrange(self.IMAGE_CONTROL_COUNT):
-            img_control = xbmcgui.ControlImage(0, 0, 0, 0, '', aspectRatio=1)
+            img_control = ControlImage(0, 0, 0, 0, '', aspectRatio=1)
             self.image_controls.append(img_control)
         self.log('init_cycle_controls end')
 
@@ -168,7 +172,7 @@ class ScreensaverBase(object):
                 'properties': ['fanart'],
             }
         }
-        response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
+        response = _json.loads(xbmc.executeJSONRPC(_json.dumps(query)))
         images = [
             element['fanart'] for element
             in response.get('result', {}).get(prop, [])
@@ -460,7 +464,6 @@ class GridSwitchScreensaver(ScreensaverBase):
 
     IMAGE_CONTROL_COUNT = ROWS_AND_COLUMNS ** 2
     FAST_IMAGE_COUNT = IMAGE_CONTROL_COUNT
-
 
     def load_settings(self):
         self.NEXT_IMAGE_TIME = int(addon.getSetting('gridswitch_wait'))
