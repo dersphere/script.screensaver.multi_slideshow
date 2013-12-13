@@ -316,16 +316,21 @@ class StarWarsScreensaver(ScreensaverBase):
     MODE = 'StarWars'
     BACKGROUND_IMAGE = 'stars.jpg'
     IMAGE_CONTROL_COUNT = 6
-    NEXT_IMAGE_TIME = 2800
+    SPEED = 0.5
+
+    def load_settings(self):
+        self.SPEED = float(addon.getSetting('starwars_speed'))
+        self.EFFECT_TIME = 9000.0 / self.SPEED
+        self.NEXT_IMAGE_TIME = self.EFFECT_TIME / 7.6
 
     def process_image(self, image_control, image_url):
         TILT_ANIMATION = (
-            'effect=rotatex start=0 end=50 center=auto time=0 '
+            'effect=rotatex start=0 end=55 center=auto time=0 '
             'condition=true'
         )
         MOVE_ANIMATION = (
-            'effect=slide start=0,1100 end=0,-1100 time=10400 '
-            'tween=linear condition=true center=auto'
+            'effect=slide start=0,1280 end=0,-2560 time=%d '
+            'tween=linear condition=true'
         )
         # hide the image
         image_control.setImage('')
@@ -337,17 +342,17 @@ class StarWarsScreensaver(ScreensaverBase):
         width = 1280
         height = 720
         x_position = 0
-        y_position = 510
+        y_position = 0
         animations = [
             ('conditional', TILT_ANIMATION),
-            ('conditional', MOVE_ANIMATION),
+            ('conditional', MOVE_ANIMATION % self.EFFECT_TIME),
         ]
         # set all parameters and properties
         image_control.setPosition(x_position, y_position)
         image_control.setAnimations(animations)
-        image_control.setImage(image_url)
         image_control.setWidth(width)
         image_control.setHeight(height)
+        image_control.setImage(image_url)
         # show the image
         image_control.setVisible(True)
 
