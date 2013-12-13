@@ -48,6 +48,7 @@ SOURCES = (
     'artist_fanart',
     'album_fanart',
 )
+CHUNK_WAIT_TIME = 250
 
 
 class ScreensaverManager(object):
@@ -218,11 +219,16 @@ class ScreensaverBase(object):
 
     def wait(self):
         # wait in chunks of 500ms to react earlier on exit request
-        for i in xrange(self.NEXT_IMAGE_TIME / 500):
+        chunk_wait_time = CHUNK_WAIT_TIME
+        remaining_wait_time = self.NEXT_IMAGE_TIME
+        while remaining_wait_time > 0:
             if self.exit_requested:
                 self.log('wait aborted')
                 return
-            xbmc.sleep(500)
+            if remaining_wait_time < chunk_wait_time:
+                chunk_wait_time = remaining_wait_time
+            remaining_wait_time -= chunk_wait_time
+            xbmc.sleep(chunk_wait_time)
 
     def stop(self):
         self.log('stop')
