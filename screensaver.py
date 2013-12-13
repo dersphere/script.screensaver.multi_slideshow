@@ -17,12 +17,13 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import random
+import sys
+
 if sys.version_info >= (2, 7):
     import json as _json
 else:
     import simplejson as _json
-
-import random
 
 import xbmc
 import xbmcaddon
