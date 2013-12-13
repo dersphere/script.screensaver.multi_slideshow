@@ -322,8 +322,8 @@ class StarWarsScreensaver(ScreensaverBase):
             'tween=linear condition=true center=auto'
         )
         # hide the image
-        image_control.setVisible(False)
         image_control.setImage('')
+        image_control.setVisible(False)
         # re-stack it (to be on top)
         self.xbmc_window.removeControl(image_control)
         self.xbmc_window.addControl(image_control)
@@ -337,11 +337,11 @@ class StarWarsScreensaver(ScreensaverBase):
             ('conditional', MOVE_ANIMATION),
         ]
         # set all parameters and properties
-        image_control.setImage(image_url)
         image_control.setPosition(x_position, y_position)
+        image_control.setAnimations(animations)
+        image_control.setImage(image_url)
         image_control.setWidth(width)
         image_control.setHeight(height)
-        image_control.setAnimations(animations)
         # show the image
         image_control.setVisible(True)
 
