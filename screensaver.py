@@ -219,8 +219,8 @@ class ScreensaverBase(object):
 
     def wait(self):
         # wait in chunks of 500ms to react earlier on exit request
-        chunk_wait_time = CHUNK_WAIT_TIME
-        remaining_wait_time = self.NEXT_IMAGE_TIME
+        chunk_wait_time = int(CHUNK_WAIT_TIME)
+        remaining_wait_time = int(self.NEXT_IMAGE_TIME)
         while remaining_wait_time > 0:
             if self.exit_requested:
                 self.log('wait aborted')
