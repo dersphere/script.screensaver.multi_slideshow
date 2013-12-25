@@ -493,6 +493,7 @@ class GridSwitchScreensaver(ScreensaverBase):
     ROWS_AND_COLUMNS = 4
     NEXT_IMAGE_TIME = 1000
     EFFECT_TIME = 500
+    RANDOM_ORDER = False
 
     IMAGE_CONTROL_COUNT = ROWS_AND_COLUMNS ** 2
     FAST_IMAGE_COUNT = IMAGE_CONTROL_COUNT
@@ -500,6 +501,7 @@ class GridSwitchScreensaver(ScreensaverBase):
     def load_settings(self):
         self.NEXT_IMAGE_TIME = int(addon.getSetting('gridswitch_wait'))
         self.ROWS_AND_COLUMNS = int(addon.getSetting('gridswitch_rows_columns'))
+        self.RANDOM_ORDER = addon.getSetting('gridswitch_random') == 'true'
         self.IMAGE_CONTROL_COUNT = self.ROWS_AND_COLUMNS ** 2
         self.FAST_IMAGE_COUNT = self.IMAGE_CONTROL_COUNT
 
@@ -516,7 +518,8 @@ class GridSwitchScreensaver(ScreensaverBase):
             image_control.setPosition(x_position, y_position)
             image_control.setWidth(width)
             image_control.setHeight(height)
-        random.shuffle(self.image_controls)
+        if self.RANDOM_ORDER:
+            random.shuffle(self.image_controls)
 
     def process_image(self, image_control, image_url):
         if not self.image_count < self.FAST_IMAGE_COUNT:
