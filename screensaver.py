@@ -153,16 +153,27 @@ class ScreensaverBase(object):
         self.log('get_images')
         self.image_aspect_ratio = 16.0 / 9.0
         source = SOURCES[int(addon.getSetting('source'))]
+        images = []
         if source == 'movie_fanart':
-            return self._get_json_images('VideoLibrary.GetMovies', 'movies')
+            images = self._get_json_images('VideoLibrary.GetMovies', 'movies')
         elif source == 'artist_fanart':
-            return self._get_json_images('AudioLibrary.GetArtists', 'artists')
+            images = self._get_json_images('AudioLibrary.GetArtists', 'artists')
         elif source == 'album_fanart':
-            return self._get_json_images('AudioLibrary.GetAlbums', 'albums')
+            images = self._get_json_images('AudioLibrary.GetAlbums', 'albums')
         elif source == 'image_folder':
             path = addon.getSetting('image_path')
-            return self._get_folder_images(path)
-        raise NotImplementedError
+            images = self._get_folder_images(path)
+        if not images:
+            cmd = 'XBMC.Notification("{header}", "{message}")'.format(
+                header=addon.getLocalizedString(32500),
+                message=addon.getLocalizedString(32501)
+            )
+            xbmc.executebuiltin(cmd)
+            images = (
+                self._get_json_images('VideoLibrary.GetMovies', 'movies')
+                or self._get_json_images('AudioLibrary.GetArtists', 'artists')
+            )
+        return images
 
     def _get_json_images(self, method, prop):
         self.log('_get_json_images start')

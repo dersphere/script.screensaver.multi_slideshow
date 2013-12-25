@@ -22,4 +22,6 @@
     <string id="32302">Rows and Columns</string>
     <string id="32303">Speed</string>
     <string id="32304">Image Concurrency</string>
+    <string id="32500">No Images found!</string>
+    <string id="32501">Using Fallback Movie or Music Fanart</string>
 </strings>
