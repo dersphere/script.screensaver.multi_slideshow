@@ -14,6 +14,7 @@
     <category label="32200">
         <setting id="source" type="enum" label="32010" lvalues="32011|32012|32013|32014" default="0"/>
         <setting id="image_path" type="folder" source="pictures" label="32012" visible="eq(-1,1)" default=""/>
+        <setting id="recursive" type="bool" label="32008" visible="eq(-2,1)" default="true"/>
         <setting id="random_order" type="bool" label="32007" default="true"/>
     </category>
 </settings>

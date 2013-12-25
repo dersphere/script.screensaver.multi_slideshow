@@ -163,7 +163,8 @@ class ScreensaverBase(object):
             images = self._get_json_images('AudioLibrary.GetAlbums', 'albums')
         elif source == 'image_folder':
             path = addon.getSetting('image_path')
-            images = self._get_folder_images(path)
+            if path:
+                images = self._get_folder_images(path)
         if not images:
             cmd = 'XBMC.Notification("{header}", "{message}")'.format(
                 header=addon.getLocalizedString(32500),
@@ -196,12 +197,19 @@ class ScreensaverBase(object):
         return images
 
     def _get_folder_images(self, path):
-        self.log('_get_folder_images start')
+        self.log('_get_folder_images started with path: %s' % repr(path))
         dirs, files = xbmcvfs.listdir(path)
         images = [
             xbmc.validatePath(path + f) for f in files
             if f.lower()[-3:] in ('jpg', 'png')
         ]
+        if addon.getSetting('recursive') == 'true':
+            for directory in dirs:
+                images.extend(
+                    self._get_folder_images(
+                        xbmc.validatePath('/'.join((path, directory, '')))
+                    )
+                )
         self.log('_get_folder_images ends')
         return images
 
