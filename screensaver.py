@@ -21,9 +21,9 @@ import random
 import sys
 
 if sys.version_info >= (2, 7):
-    import json as _json
+    import json
 else:
-    import simplejson as _json
+    import simplejson as json
 
 import xbmc
 import xbmcaddon
@@ -132,7 +132,8 @@ class ScreensaverBase(object):
     def start_loop(self):
         self.log('start_loop start')
         images = self.get_images()
-        random.shuffle(images)
+        if addon.getSetting('random_order') == 'true':
+            random.shuffle(images)
         image_url_cycle = cycle(images)
         image_controls_cycle = cycle(self.image_controls)
         self.hide_loading_indicator()
@@ -185,7 +186,7 @@ class ScreensaverBase(object):
                 'properties': ['fanart'],
             }
         }
-        response = _json.loads(xbmc.executeJSONRPC(_json.dumps(query)))
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
         images = [
             element['fanart'] for element
             in response.get('result', {}).get(prop, [])
