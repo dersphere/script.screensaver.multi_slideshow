@@ -143,10 +143,10 @@ class ScreensaverBase(object):
             image_control = image_controls_cycle.next()
             self.process_image(image_control, image_url)
             image_url = image_url_cycle.next()
-            self.preload_image(image_url)
             if self.image_count < self.FAST_IMAGE_COUNT:
                 self.image_count += 1
             else:
+                self.preload_image(image_url)
                 self.wait()
         self.log('start_loop end')
 
