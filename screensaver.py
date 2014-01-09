@@ -219,6 +219,8 @@ class ScreensaverBase(object):
         ]
         if addon.getSetting('recursive') == 'true':
             for directory in dirs:
+                if directory.startswith('.'):
+                    continue
                 images.extend(
                     self._get_folder_images(
                         xbmc.validatePath('/'.join((path, directory, '')))
