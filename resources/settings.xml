@@ -13,9 +13,10 @@
         <setting id="starwars_speed" label="32303" visible="eq(-9,1)" type="slider" default="1" range="0.25,0.25,3.0" option="float"/>
     </category>
     <category label="32200">
-        <setting id="source" type="enum" label="32010" lvalues="32011|32012|32013|32014" default="0"/>
-        <setting id="image_path" type="folder" source="pictures" label="32012" visible="eq(-1,1)" default=""/>
-        <setting id="recursive" type="bool" label="32008" visible="eq(-2,1)" default="true"/>
         <setting id="random_order" type="bool" label="32007" default="true"/>
+        <setting id="source" type="enum" label="32010" lvalues="32011|32012|32014" default="0"/>
+        <setting id="prop" type="enum" label="32013" visible="eq(-1,0)|eq(-1,2)" lvalues="32015|32016" default="0"/>
+        <setting id="image_path" type="folder" source="pictures" label="32012" visible="eq(-2,1)" default=""/>
+        <setting id="recursive" type="bool" label="32008" visible="eq(-3,1)" default="true"/>
     </category>
 </settings>

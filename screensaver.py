@@ -43,10 +43,13 @@ MODES = (
     'Random',
 )
 SOURCES = (
-    'movie_fanart',
+    'movies',
     'image_folder',
-    'artist_fanart',
-    'album_fanart',
+    'albums',
+)
+PROPS = (
+    'fanart',
+    'thumbnail',
 )
 CHUNK_WAIT_TIME = 250
 ACTION_IDS_EXIT = [9, 10, 13]
@@ -166,13 +169,12 @@ class ScreensaverBase(object):
         self.log('get_images')
         self.image_aspect_ratio = 16.0 / 9.0
         source = SOURCES[int(addon.getSetting('source'))]
+        prop = PROPS[int(addon.getSetting('prop'))]
         images = []
-        if source == 'movie_fanart':
-            images = self._get_json_images('VideoLibrary.GetMovies', 'movies')
-        elif source == 'artist_fanart':
-            images = self._get_json_images('AudioLibrary.GetArtists', 'artists')
-        elif source == 'album_fanart':
-            images = self._get_json_images('AudioLibrary.GetAlbums', 'albums')
+        if source == 'movies':
+            images = self._get_json_images('VideoLibrary.GetMovies', 'movies', prop)
+        elif source == 'albums':
+            images = self._get_json_images('AudioLibrary.GetAlbums', 'albums', prop)
         elif source == 'image_folder':
             path = addon.getSetting('image_path')
             if path:
@@ -184,26 +186,26 @@ class ScreensaverBase(object):
             )
             xbmc.executebuiltin(cmd)
             images = (
-                self._get_json_images('VideoLibrary.GetMovies', 'movies')
-                or self._get_json_images('AudioLibrary.GetArtists', 'artists')
+                self._get_json_images('VideoLibrary.GetMovies', 'movies', 'fanart')
+                or self._get_json_images('AudioLibrary.GetArtists', 'artists', 'fanart')
             )
         return images
 
-    def _get_json_images(self, method, prop):
+    def _get_json_images(self, method, key, prop):
         self.log('_get_json_images start')
         query = {
             'jsonrpc': '2.0',
             'id': 0,
             'method': method,
             'params': {
-                'properties': ['fanart'],
+                'properties': [prop],
             }
         }
         response = json.loads(xbmc.executeJSONRPC(json.dumps(query)))
         images = [
-            element['fanart'] for element
-            in response.get('result', {}).get(prop, [])
-            if element.get('fanart')
+            element[prop] for element
+            in response.get('result', {}).get(key, [])
+            if element.get(prop)
         ]
         self.log('_get_json_images end')
         return images
