@@ -1,3 +1,9 @@
+0.1.0 (09.01.2014)
+ - added possibility to choose between fanart and thumbnail on movies and albums
+ - added possibility to start the slideshow as program plugin (press exit, back or stop to exit)
+ - possibly fix star wars effect race condition on slow machines
+ - ignore directories with leading dot (e.g. .git, .DS_Store)
+
 0.0.2 (unreleased)
  - fix script error with float wait time
  - catch empty image folder
