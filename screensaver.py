@@ -385,9 +385,9 @@ class StarWarsScreensaver(ScreensaverBase):
         ]
         # set all parameters and properties
         image_control.setPosition(x_position, y_position)
-        image_control.setAnimations(animations)
         image_control.setWidth(width)
         image_control.setHeight(height)
+        image_control.setAnimations(animations)
         image_control.setImage(image_url)
         # show the image
         image_control.setVisible(True)
