@@ -49,6 +49,7 @@ SOURCES = (
     'album_fanart',
 )
 CHUNK_WAIT_TIME = 250
+ACTION_IDS_EXIT = [9, 10, 13]
 
 
 class ScreensaverManager(object):
@@ -73,6 +74,17 @@ class ExitMonitor(xbmc.Monitor):
         self.exit_callback()
 
 
+class ScreensaverWindow(WindowDialog):
+
+    def __init__(self, exit_callback):
+        self.exit_callback = exit_callback
+
+    def onAction(self, action):
+        action_id = action.getId()
+        if action_id in ACTION_IDS_EXIT:
+            self.exit_callback()
+
+
 class ScreensaverBase(object):
 
     MODE = None
@@ -90,7 +102,7 @@ class ScreensaverBase(object):
         self.image_controls = []
         self.global_controls = []
         self.exit_monitor = ExitMonitor(self.stop)
-        self.xbmc_window = WindowDialog()
+        self.xbmc_window = ScreensaverWindow(self.stop)
         self.xbmc_window.show()
         self.init_global_controls()
         self.load_settings()
@@ -255,6 +267,9 @@ class ScreensaverBase(object):
         self.exit_requested = True
         self.exit_monitor = None
 
+    def close(self):
+        self.del_controls()
+
     def del_controls(self):
         self.log('del_controls start')
         self.xbmc_window.removeControls(self.image_controls)
@@ -264,13 +279,12 @@ class ScreensaverBase(object):
         self.loading_control = None
         self.image_controls = []
         self.global_controls = []
+        self.xbmc_window.close()
+        self.xbmc_window = None
         self.log('del_controls end')
 
     def log(self, msg):
         xbmc.log(u'%s: %s' % (ADDON_NAME, msg))
-
-    def __del__(self):
-        self.del_controls()
 
 
 class TableDropScreensaver(ScreensaverBase):
@@ -554,5 +568,6 @@ def cycle(iterable):
 if __name__ == '__main__':
     screensaver = ScreensaverManager()
     screensaver.start_loop()
+    screensaver.close()
     del screensaver
     sys.modules.clear()
