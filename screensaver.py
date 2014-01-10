@@ -46,6 +46,7 @@ SOURCES = (
     'movies',
     'image_folder',
     'albums',
+    'shows',
 )
 PROPS = (
     'fanart',
@@ -175,6 +176,8 @@ class ScreensaverBase(object):
             images = self._get_json_images('VideoLibrary.GetMovies', 'movies', prop)
         elif source == 'albums':
             images = self._get_json_images('AudioLibrary.GetAlbums', 'albums', prop)
+        elif source == 'shows':
+            images = self._get_json_images('VideoLibrary.GetTVShows', 'tvshows', prop)
         elif source == 'image_folder':
             path = addon.getSetting('image_path')
             if path:
