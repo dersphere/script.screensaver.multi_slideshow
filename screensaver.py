@@ -52,7 +52,7 @@ PROPS = (
     'thumbnail',
 )
 CHUNK_WAIT_TIME = 250
-ACTION_IDS_EXIT = [9, 10, 13]
+ACTION_IDS_EXIT = [9, 10, 13, 92]
 
 
 class ScreensaverManager(object):
