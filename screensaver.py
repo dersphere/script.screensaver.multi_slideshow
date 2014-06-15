@@ -56,6 +56,10 @@ CHUNK_WAIT_TIME = 250
 ACTION_IDS_EXIT = [9, 10, 13, 92]
 
 
+class NoImagesException(Exception):
+    pass
+
+
 class ScreensaverManager(object):
 
     def __new__(cls):
@@ -192,6 +196,8 @@ class ScreensaverBase(object):
                 self._get_json_images('VideoLibrary.GetMovies', 'movies', 'fanart')
                 or self._get_json_images('AudioLibrary.GetArtists', 'artists', 'fanart')
             )
+        if not images:
+            raise NoImagesException
         return images
 
     def _get_json_images(self, method, key, prop):
@@ -574,7 +580,10 @@ def cycle(iterable):
 
 if __name__ == '__main__':
     screensaver = ScreensaverManager()
-    screensaver.start_loop()
+    try:
+        screensaver.start_loop()
+    except NoImagesException:
+        pass
     screensaver.close()
     del screensaver
     sys.modules.clear()
