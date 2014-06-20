@@ -19,6 +19,7 @@
 
 import random
 import sys
+from PIL import Image
 
 if sys.version_info >= (2, 7):
     import json
@@ -454,6 +455,7 @@ class AppleTVLikeScreensaver(ScreensaverBase):
     DISTANCE_RATIO = 0.7
     SPEED = 1.0
     CONCURRENCY = 1.0
+    SCREEN = 0
 
     def load_settings(self):
         self.SPEED = float(addon.getSetting('appletvlike_speed'))
@@ -470,12 +472,11 @@ class AppleTVLikeScreensaver(ScreensaverBase):
         # Then shuffle image list again to have random size order.
 
         for image_control in self.image_controls:
-            zoom = int(random.betavariate(2, 2) * 40) + 10
-            #zoom = int(random.randint(10, 70))
-            width = 1280 / 100 * zoom
-            image_control.setWidth(width)
+            zoom = int(random.betavariate(2, 2) * 70) + 10
+            height = 720 / 100 * zoom
+            image_control.setHeight(height)
         self.image_controls = sorted(
-            self.image_controls, key=lambda c: c.getWidth()
+            self.image_controls, key=lambda c: c.getHeight()
         )
         self.xbmc_window.addControls(self.image_controls)
         random.shuffle(self.image_controls)
@@ -490,11 +491,20 @@ class AppleTVLikeScreensaver(ScreensaverBase):
         # calculate all parameters and properties based on the already set
         # width. We can not change the size again because all controls need
         # to be added to the window in size order.
-        width = image_control.getWidth()
-        zoom = width * 100 / 1280
-        height = int(width / self.image_aspect_ratio)
+        im = Image.open(image_url)
+        height = image_control.getHeight()
+        width = im.size[0] * height / im.size[1]
+        zoom = height * 100 / 720
+        self.log('image size original %d' % im.size[0] + '/%d' % im.size[1] + ' new %d' % width + '/%d' % height)
+        del im
         # let images overlap max 1/2w left or right
-        center = random.randint(0, 1280)
+        # make an image more likely to appear on the other half of the screen
+        if self.SCREEN == 0:
+            center = random.randint(0, 960)
+            self.SCREEN = 1
+        else:
+            center = random.randint(320, 1280)
+            self.SCREEN = 0
         x_position = center - width / 2
         y_position = 0
 
