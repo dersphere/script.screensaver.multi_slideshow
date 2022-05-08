@@ -367,7 +367,7 @@ class StarWarsScreensaver(ScreensaverBase):
 
     def load_settings(self):
         self.SPEED = float(addon.getSetting('starwars_speed'))
-        self.EFFECT_TIME = 9000.0 // self.SPEED
+        self.EFFECT_TIME = 9000.0 / self.SPEED
         self.NEXT_IMAGE_TIME = self.EFFECT_TIME / 7.6
 
     def process_image(self, image_control, image_url):
@@ -458,8 +458,8 @@ class AppleTVLikeScreensaver(ScreensaverBase):
     def load_settings(self):
         self.SPEED = float(addon.getSetting('appletvlike_speed'))
         self.CONCURRENCY = float(addon.getSetting('appletvlike_concurrency'))
-        self.MAX_TIME = int(15000 // self.SPEED)
-        self.NEXT_IMAGE_TIME = int(4500.0 // self.CONCURRENCY // self.SPEED)
+        self.MAX_TIME = int(15000 / self.SPEED)
+        self.NEXT_IMAGE_TIME = int(4500.0 / self.CONCURRENCY / self.SPEED)
 
     def stack_cycle_controls(self):
         # randomly generate a zoom in percent as betavariant
