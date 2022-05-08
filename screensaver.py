@@ -120,7 +120,7 @@ class ScreensaverBase(object):
 
     def init_global_controls(self):
         self.log('init_global_controls start')
-        loading_img = xbmc.validatePath('/'.join((
+        loading_img = xbmcvfs.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', 'loading.gif'
         )))
         self.loading_control = ControlImage(576, 296, 128, 128, loading_img)
@@ -137,7 +137,7 @@ class ScreensaverBase(object):
 
     def init_cycle_controls(self):
         self.log('init_cycle_controls start')
-        for i in xrange(self.IMAGE_CONTROL_COUNT):
+        for i in range(self.IMAGE_CONTROL_COUNT):
             img_control = ControlImage(0, 0, 0, 0, '', aspectRatio=1)
             self.image_controls.append(img_control)
         self.log('init_cycle_controls end')
@@ -157,12 +157,12 @@ class ScreensaverBase(object):
         image_url_cycle = cycle(images)
         image_controls_cycle = cycle(self.image_controls)
         self.hide_loading_indicator()
-        image_url = image_url_cycle.next()
+        image_url = next(image_url_cycle)
         while not self.exit_requested:
             self.log('using image: %s' % repr(image_url))
-            image_control = image_controls_cycle.next()
+            image_control = next(image_controls_cycle)
             self.process_image(image_control, image_url)
-            image_url = image_url_cycle.next()
+            image_url = next(image_url_cycle)
             if self.image_count < self.FAST_IMAGE_COUNT:
                 self.image_count += 1
             else:
@@ -223,7 +223,7 @@ class ScreensaverBase(object):
         self.log('_get_folder_images started with path: %s' % repr(path))
         dirs, files = xbmcvfs.listdir(path)
         images = [
-            xbmc.validatePath(path + f) for f in files
+            xbmcvfs.validatePath(path + f) for f in files
             if f.lower()[-3:] in ('jpg', 'png')
         ]
         if addon.getSetting('recursive') == 'true':
@@ -232,14 +232,14 @@ class ScreensaverBase(object):
                     continue
                 images.extend(
                     self._get_folder_images(
-                        xbmc.validatePath('/'.join((path, directory, '')))
+                        xbmcvfs.validatePath('/'.join((path, directory, '')))
                     )
                 )
         self.log('_get_folder_images ends')
         return images
 
     def hide_loading_indicator(self):
-        bg_img = xbmc.validatePath('/'.join((
+        bg_img = xbmcvfs.validatePath('/'.join((
             ADDON_PATH, 'resources', 'media', self.BACKGROUND_IMAGE
         )))
         self.loading_control.setAnimations([(
@@ -367,7 +367,7 @@ class StarWarsScreensaver(ScreensaverBase):
 
     def load_settings(self):
         self.SPEED = float(addon.getSetting('starwars_speed'))
-        self.EFFECT_TIME = 9000.0 / self.SPEED
+        self.EFFECT_TIME = 9000.0 // self.SPEED
         self.NEXT_IMAGE_TIME = self.EFFECT_TIME / 7.6
 
     def process_image(self, image_control, image_url):
@@ -458,8 +458,8 @@ class AppleTVLikeScreensaver(ScreensaverBase):
     def load_settings(self):
         self.SPEED = float(addon.getSetting('appletvlike_speed'))
         self.CONCURRENCY = float(addon.getSetting('appletvlike_concurrency'))
-        self.MAX_TIME = int(15000 / self.SPEED)
-        self.NEXT_IMAGE_TIME = int(4500.0 / self.CONCURRENCY / self.SPEED)
+        self.MAX_TIME = int(15000 // self.SPEED)
+        self.NEXT_IMAGE_TIME = int(4500.0 // self.CONCURRENCY // self.SPEED)
 
     def stack_cycle_controls(self):
         # randomly generate a zoom in percent as betavariant
@@ -472,7 +472,7 @@ class AppleTVLikeScreensaver(ScreensaverBase):
         for image_control in self.image_controls:
             zoom = int(random.betavariate(2, 2) * 40) + 10
             #zoom = int(random.randint(10, 70))
-            width = 1280 / 100 * zoom
+            width = 1280 // 100 * zoom
             image_control.setWidth(width)
         self.image_controls = sorted(
             self.image_controls, key=lambda c: c.getWidth()
@@ -491,14 +491,14 @@ class AppleTVLikeScreensaver(ScreensaverBase):
         # width. We can not change the size again because all controls need
         # to be added to the window in size order.
         width = image_control.getWidth()
-        zoom = width * 100 / 1280
+        zoom = width * 100 // 1280
         height = int(width / self.image_aspect_ratio)
         # let images overlap max 1/2w left or right
         center = random.randint(0, 1280)
-        x_position = center - width / 2
+        x_position = center - width // 2
         y_position = 0
 
-        time = self.MAX_TIME / zoom * self.DISTANCE_RATIO * 100
+        time = self.MAX_TIME // zoom * self.DISTANCE_RATIO * 100
 
         animations = [
             ('conditional', MOVE_ANIMATION % time),
@@ -538,8 +538,8 @@ class GridSwitchScreensaver(ScreensaverBase):
         super(GridSwitchScreensaver, self).stack_cycle_controls()
         for i, image_control in enumerate(self.image_controls):
             current_row, current_col = divmod(i, self.ROWS_AND_COLUMNS)
-            width = 1280 / self.ROWS_AND_COLUMNS
-            height = 720 / self.ROWS_AND_COLUMNS
+            width = 1280 // self.ROWS_AND_COLUMNS
+            height = 720 // self.ROWS_AND_COLUMNS
             x_position = width * current_col
             y_position = height * current_row
             image_control.setPosition(x_position, y_position)
