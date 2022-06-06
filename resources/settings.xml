@@ -1,22 +1,241 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-    <category label="32100">
-        <setting id="mode" type="enum" label="32000" lvalues="32001|32002|32003|32004|32005|32006" default="5"/>
-        <setting id="tabledrop_wait" label="32300" visible="eq(-1,0)" type="slider" default="1500" range="500,500,5000" option="int"/>
-        <setting id="randomzoom_wait" label="32300" visible="eq(-2,2)" type="slider" default="2000" range="500,500,5000" option="int"/>
-        <setting id="randomzoom_effect" label="32301" visible="eq(-3,2)" type="slider" default="5000" range="500,500,7000" option="int"/>
-        <setting id="gridswitch_wait" label="32300" visible="eq(-4,4)" type="slider" default="1000" range="500,500,7000" option="int"/>
-        <setting id="gridswitch_rows_columns" label="32302" visible="eq(-5,4)" type="slider" default="4" range="2,1,5" option="int"/>
-        <setting id="gridswitch_random" type="bool" visible="eq(-6,4)"  label="32305" default="true"/>
-        <setting id="appletvlike_speed" label="32303" visible="eq(-7,3)" type="slider" default="1" range="0.5,0.5,8.0" option="float"/>
-        <setting id="appletvlike_concurrency" label="32304" visible="eq(-8,3)" type="slider" default="1" range="0.5,0.25,5.0" option="float"/>
-        <setting id="starwars_speed" label="32303" visible="eq(-9,1)" type="slider" default="1" range="0.25,0.25,3.0" option="float"/>
-    </category>
-    <category label="32200">
-        <setting id="random_order" type="bool" label="32007" default="true"/>
-        <setting id="source" type="enum" label="32010" lvalues="32011|32012|32014|32017" default="0"/>
-        <setting id="prop" type="enum" label="32013" visible="eq(-1,0)|eq(-1,2)|eq(-1,3)" lvalues="32015|32016" default="0"/>
-        <setting id="image_path" type="folder" source="pictures" label="32012" visible="eq(-2,1)" default=""/>
-        <setting id="recursive" type="bool" label="32008" visible="eq(-3,1)" default="true"/>
-    </category>
+<?xml version="1.0" ?>
+<settings version="1">
+	<section id="script.screensaver.multi_slideshow">
+		<category id="mode" label="32100" help="">
+			<group id="1">
+				<setting id="mode" type="integer" label="32000" help="">
+					<level>0</level>
+					<default>5</default>
+					<constraints>
+						<options>
+							<option label="32001">0</option>
+							<option label="32002">1</option>
+							<option label="32003">2</option>
+							<option label="32004">3</option>
+							<option label="32005">4</option>
+							<option label="32006">5</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="tabledrop_wait" type="integer" label="32300" help="">
+					<level>0</level>
+					<default>1500</default>
+					<constraints>
+						<minimum>500</minimum>
+						<step>500</step>
+						<maximum>5000</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="randomzoom_wait" type="integer" label="32300" help="">
+					<level>0</level>
+					<default>2000</default>
+					<constraints>
+						<minimum>500</minimum>
+						<step>500</step>
+						<maximum>5000</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="randomzoom_effect" type="integer" label="32301" help="">
+					<level>0</level>
+					<default>5000</default>
+					<constraints>
+						<minimum>500</minimum>
+						<step>500</step>
+						<maximum>7000</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="gridswitch_wait" type="integer" label="32300" help="">
+					<level>0</level>
+					<default>1000</default>
+					<constraints>
+						<minimum>500</minimum>
+						<step>500</step>
+						<maximum>7000</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">4</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="gridswitch_rows_columns" type="integer" label="32302" help="">
+					<level>0</level>
+					<default>4</default>
+					<constraints>
+						<minimum>2</minimum>
+						<step>1</step>
+						<maximum>5</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">4</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="gridswitch_random" type="boolean" label="32305" help="">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">4</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="appletvlike_speed" type="number" label="32303" help="">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<minimum>0.5</minimum>
+						<step>0.5</step>
+						<maximum>8.0</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">3</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="number">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="appletvlike_concurrency" type="number" label="32304" help="">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<minimum>0.5</minimum>
+						<step>0.25</step>
+						<maximum>5.0</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">3</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="number">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="starwars_speed" type="number" label="32303" help="">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<minimum>0.25</minimum>
+						<step>0.25</step>
+						<maximum>3.0</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="mode">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="number">
+						<popup>false</popup>
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="image source" label="32200" help="">
+			<group id="1">
+				<setting id="random_order" type="boolean" label="32007" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="source" type="integer" label="32010" help="">
+					<level>0</level>
+					<default>0</default>
+					<constraints>
+						<options>
+							<option label="32011">0</option>
+							<option label="32012">1</option>
+							<option label="32014">2</option>
+							<option label="32017">3</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="prop" type="integer" label="32013" help="">
+					<level>0</level>
+					<default>0</default>
+					<constraints>
+						<options>
+							<option label="32015">0</option>
+							<option label="32016">1</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<or>
+								<condition operator="is" setting="source">0</condition>
+								<condition operator="is" setting="source">2</condition>
+								<condition operator="is" setting="source">3</condition>
+							</or>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="image_path" type="path" label="32012" help="">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<sources>
+							<source>pictures</source>
+						</sources>
+						<writable>false</writable>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="source">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="button" format="path">
+						<heading>32012</heading>
+					</control>
+				</setting>
+				<setting id="recursive" type="boolean" label="32008" help="">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="source">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+	</section>
 </settings>
