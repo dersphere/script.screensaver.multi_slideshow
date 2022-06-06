@@ -1,7 +1,10 @@
-0.1.1 (15.06.2014)
+0.1.2 (2022-06-06)
+ - update for python3 and kodi 19 support
+ 
+0.1.1 (2014-06-15)
  - catch error when no images are available
 
-0.1.0 (09.01.2014)
+0.1.0 (2014-01-09)
  - added possibility to choose between fanart and thumbnail on movies and albums
  - added possibility to start the slideshow as program plugin (press exit, back or stop to exit)
  - possibly fix star wars effect race condition on slow machines
