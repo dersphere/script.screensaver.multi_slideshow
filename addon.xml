@@ -9,8 +9,9 @@
         <platform>all</platform>
         <language/>
         <website></website>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
         <source>https://github.com/dersphere/script.screensaver.multi_slideshow</source>
-        <forum>http://forum.xbmc.org/showthread.php?tid=173734</forum>
+        <forum>http://forum.kodi.tv/showthread.php?tid=173734</forum>
         <email>sphere@dersphere.de</email>
         <summary lang="en">Implements several different multi-image screensavers</summary>
         <description lang="en">This Screensaver provides several different multi-image screensavers:[CR] AppleTVLike, TableDrop, StarWars, RandomZoomIn, GridSwitch</description>
